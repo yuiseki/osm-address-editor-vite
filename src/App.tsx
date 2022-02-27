@@ -14,7 +14,7 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 import type { FeatureCollection, GeometryObject } from "geojson";
-import * as osmtogeojson from "osmtogeojson";
+import osmtogeojson from "osmtogeojson";
 
 import { Header } from "./components/Header";
 
