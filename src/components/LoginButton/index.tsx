@@ -15,9 +15,10 @@ export const LoginButton: React.VFC = () => {
         mode: "popup",
         clientId: "q9sRK4UuNqv3_HLE8E7m2-wUAKS3XJSFWb9apehpAqE",
         scopes: ["read_prefs", "write_api", "write_notes"],
-        redirectUrl: window.location.href.replace(window.location.hash, ''),
+        redirectUrl: window.location.href.replace(window.location.hash, ""),
       });
       setLoggedIn(OSM.isLoggedIn());
+      window.location.reload();
     })();
   }, []);
 
