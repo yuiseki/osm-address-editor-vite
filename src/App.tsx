@@ -13,8 +13,7 @@ import Map, {
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
-import { OSMQuery } from "@toriyama/osmql";
-import type { FeatureCollection } from "geojson";
+import type { FeatureCollection, GeometryObject } from "geojson";
 import * as osmtogeojson from "osmtogeojson";
 
 import { Header } from "./components/Header";
@@ -33,7 +32,7 @@ const layerStyle: LayerProps = {
 function App() {
   const [viewState, setViewState] = useState({});
   const geolocateControlRef = useRef<GeolocateControlRef>(null);
-  const [geojson, setGeojson] = useState<FeatureCollection>({
+  const [geojson, setGeojson] = useState<FeatureCollection<GeometryObject>>({
     type: "FeatureCollection",
     features: [],
   });
@@ -53,16 +52,21 @@ function App() {
       const center = e.target.getCenter();
       (async () => {
         console.log("overpass: loading...");
-        const osmQuery = new OSMQuery();
-        const query = osmQuery.fromQLString(
-          `way["building"="yes"](around:${150},${center.lat},${
-            center.lng
-          });out meta geom;`
+        const query = `[out:json][timeout:25];way["building"="yes"](around:${150},${
+          center.lat
+        },${center.lng});out meta geom;`;
+        const res = await fetch(
+          `https://lz4.overpass-api.de/api/interpreter?data=${encodeURIComponent(
+            query
+          )}`,
+          {}
         );
-        const result = await query.execute();
-        console.log("overpass: ", result.data.elements);
-        console.log("overpass: ", osmtogeojson(result.data));
-        setGeojson(osmtogeojson(result.data) as FeatureCollection);
+        const json = await res.json();
+        console.log(json);
+
+        console.log("overpass: ", json.elements);
+        console.log("overpass: ", osmtogeojson(json));
+        setGeojson(osmtogeojson(json) as FeatureCollection<GeometryObject>);
       })();
     },
     [viewState]
@@ -104,11 +108,11 @@ function App() {
           </Source>
           <GeolocateControl
             ref={geolocateControlRef}
-            showUserLocation={false}
+            showUserLocation={true}
             showAccuracyCircle={false}
-            trackUserLocation={false}
+            trackUserLocation={true}
             positionOptions={{ enableHighAccuracy: true }}
-            fitBoundsOptions={{ zoom: 19 }}
+            fitBoundsOptions={{ zoom: 17 }}
             position="bottom-right"
           />
         </Map>
