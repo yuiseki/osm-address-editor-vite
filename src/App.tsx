@@ -242,7 +242,7 @@ function App() {
             ref={geolocateControlRef}
             showUserLocation={true}
             showAccuracyCircle={false}
-            trackUserLocation={true}
+            trackUserLocation={false}
             positionOptions={{ enableHighAccuracy: true }}
             fitBoundsOptions={{ zoom: 17 }}
             style={{ marginTop: "55px" }}
