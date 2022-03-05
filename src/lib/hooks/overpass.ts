@@ -10,8 +10,8 @@ export const useOverpass = () => {
     console.log("overpass: loading...");
     let query = "[out:json]";
     query += "[timeout:25];\n";
-    query += 'nwr["building"="yes"]';
-    query += `(around:${200},${latitude},${longitude});\n`;
+    query += 'way["building"="yes"]';
+    query += `(around:${300},${latitude},${longitude});\n`;
     query += "out meta geom;";
     console.log(query);
     const res = await fetch(
@@ -26,15 +26,18 @@ export const useOverpass = () => {
     console.log("overpass: ", json.elements.length);
     const geojson = osmtogeojson(json) as FeatureCollection<Polygon>;
 
+    console.log("overpass geojson raw: ", geojson);
+
     // convert
     for await (const feature of geojson.features) {
       if (!feature.properties) {
         feature.properties = {};
       }
-      const poly = turf.polygon(feature.geometry.coordinates);
-      var center = turf.centroid(poly);
-      feature.properties.center = center.geometry.coordinates;
-      const username = feature.properties.user;
+      if (feature.geometry.type === "Polygon") {
+        const poly = turf.polygon(feature.geometry.coordinates);
+        var center = turf.centroid(poly);
+        feature.properties.center = center.geometry.coordinates;
+      }
       const uid = feature.properties.uid;
       if (uid) {
         let iconHref = localStorage.getItem(uid + "-icon");
@@ -50,7 +53,7 @@ export const useOverpass = () => {
         feature.properties.userIconHref = iconHref || "";
       }
     }
-    console.log("overpass: ", geojson);
+    console.log("overpass geojson converted: ", geojson);
     console.log("overpass: loaded.");
     return geojson;
   }, []);
