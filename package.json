@@ -8,6 +8,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@turf/turf": "^6.5.0",
+    "jdenticon": "^3.1.1",
     "maplibre-gl": "^2.1.6",
     "osm-api": "^1.0.2",
     "osmtogeojson": "^3.0.0-beta.4",

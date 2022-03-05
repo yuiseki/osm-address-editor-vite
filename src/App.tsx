@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import Map, {
   GeolocateControl,
@@ -8,6 +8,7 @@ import Map, {
   MapboxEvent,
   MapboxGeoJSONFeature,
   MapLayerMouseEvent,
+  Marker,
   Source,
   ViewStateChangeEvent,
 } from "react-map-gl";
@@ -20,8 +21,10 @@ import type { FeatureCollection, GeometryObject } from "geojson";
 import { Header } from "./components/Header";
 import { useOverpass } from "./lib/hooks/overpass";
 
-const layerStyle: LayerProps = {
-  id: "buildings-layer",
+import { toSvg } from "jdenticon";
+
+const layerStyleFill: LayerProps = {
+  id: "buildings-layer-fill",
   type: "fill",
   source: "buildings-source",
   paint: {
@@ -29,6 +32,19 @@ const layerStyle: LayerProps = {
     "fill-opacity": 0.4,
   },
   filter: ["==", "$type", "Polygon"],
+};
+
+const layerStyleIcon: LayerProps = {
+  id: "buildings-layer-icon",
+  type: "symbol",
+  source: "buildings-source",
+  layout: {
+    "icon-image": [
+      "coalesce",
+      ["image", ["get", "userIconHref"]],
+      ["image", "fallbackImage"],
+    ],
+  },
 };
 
 function App() {
@@ -47,6 +63,7 @@ function App() {
   const [loadingOverpass, setLoadingOverpass] = useState(false);
   const { fetchOverpass } = useOverpass();
 
+  // initial load
   useEffect(() => {
     setTimeout(() => {
       console.log(window.location.hash);
@@ -54,13 +71,24 @@ function App() {
         console.log("geolocateControlRef trigger");
         geolocateControlRef.current?.trigger();
       }
-    }, 1000);
+    }, 500);
   }, []);
 
+  // map event
+  const onLoadMap = useCallback((e: MapboxEvent) => {
+    const center = e.target.getCenter();
+    (async () => {
+      if (!loadingOverpass) {
+        setLoadingOverpass(true);
+        const newGeojson = await fetchOverpass(center.lat, center.lng);
+        setGeojson(newGeojson);
+        setLoadingOverpass(false);
+      }
+    })();
+  }, []);
   const onMoveMap = useCallback((e: ViewStateChangeEvent) => {
     setViewState(e.viewState);
   }, []);
-
   const onMoveEndMap = useCallback((e: ViewStateChangeEvent) => {
     setViewState(e.viewState);
     const center = e.viewState;
@@ -77,18 +105,7 @@ function App() {
     })();
   }, []);
 
-  const onLoadMap = useCallback((e: MapboxEvent) => {
-    const center = e.target.getCenter();
-    (async () => {
-      if (!loadingOverpass) {
-        setLoadingOverpass(true);
-        const newGeojson = await fetchOverpass(center.lat, center.lng);
-        setGeojson(newGeojson);
-        setLoadingOverpass(false);
-      }
-    })();
-  }, []);
-
+  // mouse event
   const onMouseEnter = useCallback(() => setCursor("pointer"), []);
   const onMouseLeave = useCallback(() => setCursor("auto"), []);
   const onMouseMove = useCallback((event: MapLayerMouseEvent) => {
@@ -105,10 +122,39 @@ function App() {
   }, []);
   const onClick = useCallback((event) => {
     const clickedFeature = event.features && event.features[0];
-    console.log(clickedFeature);
+    window.alert(JSON.stringify(clickedFeature, null, 2));
   }, []);
 
-  console.log(hoverInfo);
+  const pins = useMemo(() => {
+    return geojson.features.map((feature, i) => {
+      if (!feature.properties) {
+        return null;
+      } else {
+        return (
+          <Marker
+            key={`marker-${i}`}
+            longitude={feature.properties.center[0]}
+            latitude={feature.properties.center[1]}
+            anchor="bottom"
+          >
+            {feature.properties.userIconHref.length > 0 ? (
+              <img
+                src={feature.properties.userIconHref}
+                width={40}
+                height={40}
+              />
+            ) : (
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: toSvg(feature.properties.user || "noname", 40),
+                }}
+              />
+            )}
+          </Marker>
+        );
+      }
+    });
+  }, [geojson]);
 
   return (
     <div>
@@ -123,12 +169,22 @@ function App() {
           width: "100vw",
         }}
       >
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            width: "5px",
+            height: "5px",
+            background: "rgba(0, 0, 0, 0.5)",
+          }}
+        />
         <Map
           {...viewState}
           onMove={onMoveMap}
           onMoveEnd={onMoveEndMap}
           onLoad={onLoadMap}
-          interactiveLayerIds={["buildings-layer"]}
+          interactiveLayerIds={["buildings-layer-fill"]}
           onClick={onClick}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
@@ -140,8 +196,10 @@ function App() {
           mapStyle="https://raw.githubusercontent.com/geoloniamaps/basic/gh-pages/style.json"
         >
           <Source id="buildings-source" type="geojson" data={geojson}>
-            <Layer {...layerStyle} />
+            <Layer {...layerStyleFill} />
+            <Layer {...layerStyleIcon} />
           </Source>
+          {pins}
           {hoverInfo && (
             <div
               className="tooltip"
@@ -151,8 +209,8 @@ function App() {
                 padding: "5px",
                 width: "250px",
                 position: "absolute",
-                left: hoverInfo.x,
-                top: hoverInfo.y,
+                left: hoverInfo.x + 5,
+                top: hoverInfo.y + 5,
               }}
             >
               <pre>{JSON.stringify(hoverInfo.feature.properties, null, 2)}</pre>
