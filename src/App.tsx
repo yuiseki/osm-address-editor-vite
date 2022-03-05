@@ -65,8 +65,6 @@ function App() {
   const [loadingOverpass, setLoadingOverpass] = useState<boolean>();
   const { fetchOverpass } = useOverpass();
 
-  console.log("load overpass", loadingOverpass);
-
   //
   // initial load
   //
@@ -84,11 +82,13 @@ function App() {
   // map event
   //
   const onMapLoad = useCallback(async (e: MapboxEvent) => {
-    const center = e.target.getCenter();
-    setLoadingOverpass(true);
-    const newGeojson = await fetchOverpass(center.lat, center.lng);
-    setGeojson(newGeojson);
-    setLoadingOverpass(false);
+    if (!loadingOverpass) {
+      const center = e.target.getCenter();
+      setLoadingOverpass(true);
+      const newGeojson = await fetchOverpass(center.lat, center.lng);
+      setGeojson(newGeojson);
+      setLoadingOverpass(false);
+    }
   }, []);
 
   const onMapMove = useCallback((e: ViewStateChangeEvent) => {
