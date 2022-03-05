@@ -140,13 +140,15 @@ function App() {
             {feature.properties.userIconHref.length > 0 ? (
               <img
                 src={feature.properties.userIconHref}
-                width={40}
-                height={40}
+                style={{
+                  width: "30px",
+                  height: "30px",
+                }}
               />
             ) : (
               <span
                 dangerouslySetInnerHTML={{
-                  __html: toSvg(feature.properties.user || "noname", 40),
+                  __html: toSvg(feature.properties.user || "noname", 30),
                 }}
               />
             )}
