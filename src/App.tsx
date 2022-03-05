@@ -130,7 +130,12 @@ function App() {
 
   const onClick = useCallback((event) => {
     const clickedFeature = event.features && event.features[0];
-    window.alert(JSON.stringify(clickedFeature, null, 2));
+    window
+      .open(
+        "https://www.openstreetmap.org/" + clickedFeature.properties.id,
+        "_blank"
+      )
+      ?.focus();
   }, []);
 
   const pins = useMemo(() => {
@@ -240,7 +245,8 @@ function App() {
             trackUserLocation={true}
             positionOptions={{ enableHighAccuracy: true }}
             fitBoundsOptions={{ zoom: 17 }}
-            position="bottom-right"
+            style={{ marginTop: "55px" }}
+            position="top-left"
           />
         </Map>
       </div>
