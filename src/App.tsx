@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner, faXmark } from "@fortawesome/free-solid-svg-icons";
 
 import Map, {
   GeolocateControl,
@@ -60,10 +62,14 @@ function App() {
     { x: number; y: number; feature: MapboxGeoJSONFeature } | undefined
   >();
 
-  const [loadingOverpass, setLoadingOverpass] = useState(false);
+  const [loadingOverpass, setLoadingOverpass] = useState<boolean>();
   const { fetchOverpass } = useOverpass();
 
+  console.log("load overpass", loadingOverpass);
+
+  //
   // initial load
+  //
   useEffect(() => {
     setTimeout(() => {
       console.log(window.location.hash);
@@ -74,38 +80,35 @@ function App() {
     }, 500);
   }, []);
 
+  //
   // map event
-  const onMapLoad = useCallback((e: MapboxEvent) => {
+  //
+  const onMapLoad = useCallback(async (e: MapboxEvent) => {
     const center = e.target.getCenter();
-    (async () => {
-      if (!loadingOverpass) {
-        setLoadingOverpass(true);
-        const newGeojson = await fetchOverpass(center.lat, center.lng);
-        setGeojson(newGeojson);
-        setLoadingOverpass(false);
-      }
-    })();
+    setLoadingOverpass(true);
+    const newGeojson = await fetchOverpass(center.lat, center.lng);
+    setGeojson(newGeojson);
+    setLoadingOverpass(false);
   }, []);
+
   const onMapMove = useCallback((e: ViewStateChangeEvent) => {
     setViewState(e.viewState);
   }, []);
-  const onMapMoveEnd = useCallback((e: ViewStateChangeEvent) => {
+
+  const onMapMoveEnd = useCallback(async (e: ViewStateChangeEvent) => {
     setViewState(e.viewState);
     const center = e.viewState;
-    (async () => {
-      if (!loadingOverpass) {
-        setLoadingOverpass(true);
-        const newGeojson = await fetchOverpass(
-          center.latitude,
-          center.longitude
-        );
-        setGeojson(newGeojson);
-        setLoadingOverpass(false);
-      }
-    })();
+    if (!loadingOverpass) {
+      setLoadingOverpass(true);
+      const newGeojson = await fetchOverpass(center.latitude, center.longitude);
+      setGeojson(newGeojson);
+      setLoadingOverpass(false);
+    }
   }, []);
 
+  //
   // mouse event
+  //
   const onMouseEnter = useCallback((event: MapLayerMouseEvent) => {
     setCursor("pointer");
     const {
@@ -119,10 +122,12 @@ function App() {
       setHoverInfo(undefined);
     }
   }, []);
+
   const onMouseLeave = useCallback(() => {
     setCursor("auto");
     setHoverInfo(undefined);
   }, []);
+
   const onClick = useCallback((event) => {
     const clickedFeature = event.features && event.features[0];
     window.alert(JSON.stringify(clickedFeature, null, 2));
@@ -175,15 +180,23 @@ function App() {
         }}
       >
         <div
+          className="fa-2xl"
           style={{
+            zIndex: 100,
+            display: "flex",
             position: "absolute",
             top: "50%",
             left: "50%",
-            width: "5px",
-            height: "5px",
-            background: "rgba(0, 0, 0, 0.5)",
+            textAlign: "center",
+            verticalAlign: "middle",
           }}
-        />
+        >
+          {loadingOverpass ? (
+            <FontAwesomeIcon size="2x" spin={true} icon={faSpinner} />
+          ) : (
+            <FontAwesomeIcon size="2x" icon={faXmark} />
+          )}
+        </div>
         <Map
           {...viewState}
           onMove={onMapMove}
