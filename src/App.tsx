@@ -75,7 +75,7 @@ function App() {
   }, []);
 
   // map event
-  const onLoadMap = useCallback((e: MapboxEvent) => {
+  const onMapLoad = useCallback((e: MapboxEvent) => {
     const center = e.target.getCenter();
     (async () => {
       if (!loadingOverpass) {
@@ -86,10 +86,10 @@ function App() {
       }
     })();
   }, []);
-  const onMoveMap = useCallback((e: ViewStateChangeEvent) => {
+  const onMapMove = useCallback((e: ViewStateChangeEvent) => {
     setViewState(e.viewState);
   }, []);
-  const onMoveEndMap = useCallback((e: ViewStateChangeEvent) => {
+  const onMapMoveEnd = useCallback((e: ViewStateChangeEvent) => {
     setViewState(e.viewState);
     const center = e.viewState;
     (async () => {
@@ -106,9 +106,8 @@ function App() {
   }, []);
 
   // mouse event
-  const onMouseEnter = useCallback(() => setCursor("pointer"), []);
-  const onMouseLeave = useCallback(() => setCursor("auto"), []);
-  const onMouseMove = useCallback((event: MapLayerMouseEvent) => {
+  const onMouseEnter = useCallback((event: MapLayerMouseEvent) => {
+    setCursor("pointer");
     const {
       features,
       point: { x, y },
@@ -119,6 +118,10 @@ function App() {
     } else {
       setHoverInfo(undefined);
     }
+  }, []);
+  const onMouseLeave = useCallback(() => {
+    setCursor("auto");
+    setHoverInfo(undefined);
   }, []);
   const onClick = useCallback((event) => {
     const clickedFeature = event.features && event.features[0];
@@ -183,14 +186,13 @@ function App() {
         />
         <Map
           {...viewState}
-          onMove={onMoveMap}
-          onMoveEnd={onMoveEndMap}
-          onLoad={onLoadMap}
+          onMove={onMapMove}
+          onMoveEnd={onMapMoveEnd}
+          onLoad={onMapLoad}
           interactiveLayerIds={["buildings-layer-fill"]}
           onClick={onClick}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
-          onMouseMove={onMouseMove}
           cursor={cursor}
           mapLib={maplibregl}
           hash={true}
