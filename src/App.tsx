@@ -6,6 +6,8 @@ import Map, {
   Layer,
   LayerProps,
   MapboxEvent,
+  MapboxGeoJSONFeature,
+  MapLayerMouseEvent,
   Source,
   ViewStateChangeEvent,
 } from "react-map-gl";
@@ -14,14 +16,14 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 import type { FeatureCollection, GeometryObject } from "geojson";
-import osmtogeojson from "osmtogeojson";
 
 import { Header } from "./components/Header";
+import { useOverpass } from "./lib/hooks/overpass";
 
 const layerStyle: LayerProps = {
-  id: "park-boundary",
+  id: "buildings-layer",
   type: "fill",
-  source: "national-park",
+  source: "buildings-source",
   paint: {
     "fill-color": "pink",
     "fill-opacity": 0.4,
@@ -37,6 +39,14 @@ function App() {
     features: [],
   });
 
+  const [cursor, setCursor] = useState<string>("auto");
+  const [hoverInfo, setHoverInfo] = useState<
+    { x: number; y: number; feature: MapboxGeoJSONFeature } | undefined
+  >();
+
+  const [loadingOverpass, setLoadingOverpass] = useState(false);
+  const { fetchOverpass } = useOverpass();
+
   useEffect(() => {
     setTimeout(() => {
       console.log(window.location.hash);
@@ -47,38 +57,58 @@ function App() {
     }, 1000);
   }, []);
 
-  const onIdleMap = useCallback(
-    (e: MapboxEvent) => {
-      const center = e.target.getCenter();
-      (async () => {
-        console.log("overpass: loading...");
-        const query = `[out:json][timeout:25];way["building"="yes"](around:${150},${
-          center.lat
-        },${center.lng});out meta geom;`;
-        const res = await fetch(
-          `https://lz4.overpass-api.de/api/interpreter?data=${encodeURIComponent(
-            query
-          )}`,
-          {}
-        );
-        const json = await res.json();
-        console.log(json);
-
-        console.log("overpass: ", json.elements);
-        console.log("overpass: ", osmtogeojson(json));
-        setGeojson(osmtogeojson(json) as FeatureCollection<GeometryObject>);
-      })();
-    },
-    [viewState]
-  );
-
   const onMoveMap = useCallback((e: ViewStateChangeEvent) => {
     setViewState(e.viewState);
   }, []);
 
   const onMoveEndMap = useCallback((e: ViewStateChangeEvent) => {
     setViewState(e.viewState);
+    const center = e.viewState;
+    (async () => {
+      if (!loadingOverpass) {
+        setLoadingOverpass(true);
+        const newGeojson = await fetchOverpass(
+          center.latitude,
+          center.longitude
+        );
+        setGeojson(newGeojson);
+        setLoadingOverpass(false);
+      }
+    })();
   }, []);
+
+  const onLoadMap = useCallback((e: MapboxEvent) => {
+    const center = e.target.getCenter();
+    (async () => {
+      if (!loadingOverpass) {
+        setLoadingOverpass(true);
+        const newGeojson = await fetchOverpass(center.lat, center.lng);
+        setGeojson(newGeojson);
+        setLoadingOverpass(false);
+      }
+    })();
+  }, []);
+
+  const onMouseEnter = useCallback(() => setCursor("pointer"), []);
+  const onMouseLeave = useCallback(() => setCursor("auto"), []);
+  const onMouseMove = useCallback((event: MapLayerMouseEvent) => {
+    const {
+      features,
+      point: { x, y },
+    } = event;
+    const hoveredFeature = features && features[0];
+    if (hoveredFeature) {
+      setHoverInfo({ feature: hoveredFeature, x, y });
+    } else {
+      setHoverInfo(undefined);
+    }
+  }, []);
+  const onClick = useCallback((event) => {
+    const clickedFeature = event.features && event.features[0];
+    console.log(clickedFeature);
+  }, []);
+
+  console.log(hoverInfo);
 
   return (
     <div>
@@ -95,17 +125,39 @@ function App() {
       >
         <Map
           {...viewState}
-          onIdle={onIdleMap}
           onMove={onMoveMap}
           onMoveEnd={onMoveEndMap}
+          onLoad={onLoadMap}
+          interactiveLayerIds={["buildings-layer"]}
+          onClick={onClick}
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={onMouseLeave}
+          onMouseMove={onMouseMove}
+          cursor={cursor}
           mapLib={maplibregl}
           hash={true}
           style={{ width: "100%", height: "100%" }}
           mapStyle="https://raw.githubusercontent.com/geoloniamaps/basic/gh-pages/style.json"
         >
-          <Source id="my-data" type="geojson" data={geojson}>
+          <Source id="buildings-source" type="geojson" data={geojson}>
             <Layer {...layerStyle} />
           </Source>
+          {hoverInfo && (
+            <div
+              className="tooltip"
+              style={{
+                zIndex: 10,
+                background: "rgba(255, 255, 255, 0.7)",
+                padding: "5px",
+                width: "250px",
+                position: "absolute",
+                left: hoverInfo.x,
+                top: hoverInfo.y,
+              }}
+            >
+              <pre>{JSON.stringify(hoverInfo.feature.properties, null, 2)}</pre>
+            </div>
+          )}
           <GeolocateControl
             ref={geolocateControlRef}
             showUserLocation={true}
