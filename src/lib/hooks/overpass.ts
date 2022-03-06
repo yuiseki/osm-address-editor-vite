@@ -31,13 +31,19 @@ export const useOverpass = () => {
     // convert
     for await (const feature of geojson.features) {
       if (!feature.properties) {
-        feature.properties = {};
+        continue;
       }
+      // add id of feature
+      feature.id = feature.properties.id.split("/")[1];
+
+      // add center of polygon
       if (feature.geometry.type === "Polygon") {
         const poly = turf.polygon(feature.geometry.coordinates);
         var center = turf.centroid(poly);
         feature.properties.center = center.geometry.coordinates;
       }
+
+      // add icon href of last editor
       const uid = feature.properties.uid;
       if (uid) {
         let iconHref = localStorage.getItem(uid + "-icon");

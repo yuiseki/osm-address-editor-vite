@@ -11,6 +11,7 @@ import Map, {
   MapboxEvent,
   MapboxGeoJSONFeature,
   MapLayerMouseEvent,
+  MapRef,
   Marker,
   Point,
   Source,
@@ -34,13 +35,28 @@ const layerStyleFill: LayerProps = {
   type: "fill",
   source: "buildings-source",
   paint: {
-    "fill-color": "pink",
-    "fill-opacity": 0.4,
+    "fill-color": [
+      "case",
+      ["boolean", ["feature-state", "select"], false],
+      "green",
+      ["boolean", ["has", "addr:province"], false],
+      "blue",
+      "pink",
+    ],
+    "fill-opacity": [
+      "case",
+      ["boolean", ["feature-state", "select"], false],
+      0.8,
+      ["boolean", ["feature-state", "hover"], false],
+      0.8,
+      0.4,
+    ],
   },
   filter: ["==", "$type", "Polygon"],
 };
 
 function App() {
+  const mapRef = useRef<MapRef>(null);
   const [viewState, setViewState] = useState({});
   const geolocateControlRef = useRef<GeolocateControlRef>(null);
   const [geojson, setGeojson] = useState<FeatureCollection<GeometryObject>>({
@@ -76,13 +92,11 @@ function App() {
   // map event
   //
   const onMapLoad = useCallback(async (e: MapboxEvent) => {
-    if (!loadingOverpass) {
-      const center = e.target.getCenter();
-      setLoadingOverpass(true);
-      const newGeojson = await fetchOverpass(center.lat, center.lng);
-      setGeojson(newGeojson);
-      setLoadingOverpass(false);
-    }
+    const center = e.target.getCenter();
+    setLoadingOverpass(true);
+    const newGeojson = await fetchOverpass(center.lat, center.lng);
+    setGeojson(newGeojson);
+    setLoadingOverpass(false);
   }, []);
 
   const onMapMove = useCallback((e: ViewStateChangeEvent) => {
@@ -111,14 +125,26 @@ function App() {
     } = e;
     const hoveredFeature = features && features[0];
     if (hoveredFeature) {
+      mapRef.current?.setFeatureState(
+        { source: "buildings-source", id: hoveredFeature.id },
+        { hover: true }
+      );
       setHoverInfo({ feature: hoveredFeature, x, y });
     } else {
       setHoverInfo(undefined);
     }
   }, []);
 
-  const onMouseLeave = useCallback(() => {
+  const onMouseLeave = useCallback((e: MapLayerMouseEvent) => {
     setCursor("auto");
+    const { features } = e;
+    const hoveredFeature = features && features[0];
+    if (hoveredFeature) {
+      mapRef.current?.setFeatureState(
+        { source: "buildings-source", id: hoveredFeature.id },
+        { hover: false }
+      );
+    }
     setHoverInfo(undefined);
   }, []);
 
@@ -155,9 +181,15 @@ function App() {
     if (!clickedFeature) {
       return;
     }
+    mapRef.current?.setFeatureState(
+      { source: "buildings-source", id: clickedFeature.id },
+      { select: true }
+    );
+    /*
     const osmurl =
       "https://www.openstreetmap.org/" + clickedFeature.properties.id;
     window.open(osmurl, "_blank")?.focus();
+    */
   }, []);
 
   //
@@ -222,6 +254,7 @@ function App() {
         }}
       >
         <Map
+          ref={mapRef}
           {...viewState}
           onMove={onMapMove}
           onMoveEnd={onMapMoveEnd}
