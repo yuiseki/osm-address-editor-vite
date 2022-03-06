@@ -68,9 +68,13 @@ function App() {
   const [hoverInfo, setHoverInfo] = useState<
     { x: number; y: number; feature: MapboxGeoJSONFeature } | undefined
   >();
+
+  /*
+  // TODO dragで範囲選択したい
   const [dragging, setDragging] = useState(false);
   const [dragStart, setDragStart] = useState<Point>();
   const [dragEnd, setDragEnd] = useState<Point>();
+  */
 
   const [loadingOverpass, setLoadingOverpass] = useState<boolean>();
   const { fetchOverpass } = useOverpass();
@@ -148,6 +152,8 @@ function App() {
     setHoverInfo(undefined);
   }, []);
 
+  /*
+  // TODO dragで範囲選択したい
   const onMouseDown = useCallback((e: MapLayerMouseEvent) => {
     console.log("onMouseDown", e.point);
     if (!e.originalEvent.shiftKey) {
@@ -176,6 +182,18 @@ function App() {
     setDragging(false);
   }, []);
 
+  //
+  // selecting
+  //
+  useEffect(() => {
+    if (dragging) {
+      return;
+    }
+    console.log("drag select: ", dragging, dragStart, dragEnd);
+  }, [dragging, dragStart, dragEnd]);
+
+  */
+
   const onClick = useCallback((event) => {
     const clickedFeature = event.features && event.features[0];
     if (!clickedFeature) {
@@ -191,16 +209,6 @@ function App() {
     window.open(osmurl, "_blank")?.focus();
     */
   }, []);
-
-  //
-  // selecting
-  //
-  useEffect(() => {
-    if (dragging) {
-      return;
-    }
-    console.log("drag select: ", dragging, dragStart, dragEnd);
-  }, [dragging, dragStart, dragEnd]);
 
   //
   // icons
@@ -251,8 +259,15 @@ function App() {
           height: "100vh",
           width: "100vw",
           display: "flex",
+          flexDirection: "column",
         }}
       >
+        <div
+          style={{
+            height: "200px",
+            width: "100vw",
+          }}
+        ></div>
         <Map
           ref={mapRef}
           {...viewState}
@@ -263,9 +278,9 @@ function App() {
           onClick={onClick}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
-          onMouseDown={onMouseDown}
-          onMouseMove={onMouseMove}
-          onMouseUp={onMouseUp}
+          //onMouseDown={onMouseDown}
+          //onMouseMove={onMouseMove}
+          //onMouseUp={onMouseUp}
           //dragPan={false}
           dragRotate={false}
           boxZoom={false}
