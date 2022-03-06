@@ -216,7 +216,7 @@ function App() {
             style={{ cursor: "pointer" }}
             longitude={feature.properties.center[0]}
             latitude={feature.properties.center[1]}
-            anchor="bottom"
+            anchor="center"
           >
             {feature.properties.userIconHref.length > 0 ? (
               <img
