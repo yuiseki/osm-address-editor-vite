@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner, faXmark } from "@fortawesome/free-solid-svg-icons";
 
+// map
+import maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 import Map, {
   GeolocateControl,
   GeolocateControlRef,
@@ -11,19 +12,22 @@ import Map, {
   MapboxGeoJSONFeature,
   MapLayerMouseEvent,
   Marker,
+  Point,
   Source,
   ViewStateChangeEvent,
 } from "react-map-gl";
 
-import maplibregl from "maplibre-gl";
-import "maplibre-gl/dist/maplibre-gl.css";
-
 import type { FeatureCollection, GeometryObject } from "geojson";
 
-import { Header } from "./components/Header";
-import { useOverpass } from "./lib/hooks/overpass";
-
+// appearance
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { toSvg } from "jdenticon";
+
+// components
+import { Header } from "./components/Header";
+// libs
+import { useOverpass } from "./lib/hooks/overpass";
 
 const layerStyleFill: LayerProps = {
   id: "buildings-layer-fill",
@@ -34,19 +38,6 @@ const layerStyleFill: LayerProps = {
     "fill-opacity": 0.4,
   },
   filter: ["==", "$type", "Polygon"],
-};
-
-const layerStyleIcon: LayerProps = {
-  id: "buildings-layer-icon",
-  type: "symbol",
-  source: "buildings-source",
-  layout: {
-    "icon-image": [
-      "coalesce",
-      ["image", ["get", "userIconHref"]],
-      ["image", "fallbackImage"],
-    ],
-  },
 };
 
 function App() {
@@ -61,6 +52,9 @@ function App() {
   const [hoverInfo, setHoverInfo] = useState<
     { x: number; y: number; feature: MapboxGeoJSONFeature } | undefined
   >();
+  const [dragging, setDragging] = useState(false);
+  const [dragStart, setDragStart] = useState<Point>();
+  const [dragEnd, setDragEnd] = useState<Point>();
 
   const [loadingOverpass, setLoadingOverpass] = useState<boolean>();
   const { fetchOverpass } = useOverpass();
@@ -109,12 +103,12 @@ function App() {
   //
   // mouse event
   //
-  const onMouseEnter = useCallback((event: MapLayerMouseEvent) => {
+  const onMouseEnter = useCallback((e: MapLayerMouseEvent) => {
     setCursor("pointer");
     const {
       features,
       point: { x, y },
-    } = event;
+    } = e;
     const hoveredFeature = features && features[0];
     if (hoveredFeature) {
       setHoverInfo({ feature: hoveredFeature, x, y });
@@ -128,16 +122,57 @@ function App() {
     setHoverInfo(undefined);
   }, []);
 
-  const onClick = useCallback((event) => {
-    const clickedFeature = event.features && event.features[0];
-    window
-      .open(
-        "https://www.openstreetmap.org/" + clickedFeature.properties.id,
-        "_blank"
-      )
-      ?.focus();
+  const onMouseDown = useCallback((e: MapLayerMouseEvent) => {
+    console.log("onMouseDown", e.point);
+    if (!e.originalEvent.shiftKey) {
+      return;
+    }
+    if (e.originalEvent.button !== 0) {
+      return;
+    }
+    setDragging(true);
+    setDragStart(e.point);
   }, []);
 
+  const onMouseMove = useCallback(
+    (e: MapLayerMouseEvent) => {
+      if (!dragging) {
+        return;
+      }
+      setDragEnd(e.point);
+    },
+    [dragging]
+  );
+
+  const onMouseUp = useCallback((e: MapLayerMouseEvent) => {
+    console.log("onMouseUp", e.point);
+    setDragEnd(e.point);
+    setDragging(false);
+  }, []);
+
+  const onClick = useCallback((event) => {
+    const clickedFeature = event.features && event.features[0];
+    if (!clickedFeature) {
+      return;
+    }
+    const osmurl =
+      "https://www.openstreetmap.org/" + clickedFeature.properties.id;
+    window.open(osmurl, "_blank")?.focus();
+  }, []);
+
+  //
+  // selecting
+  //
+  useEffect(() => {
+    if (dragging) {
+      return;
+    }
+    console.log("drag select: ", dragging, dragStart, dragEnd);
+  }, [dragging, dragStart, dragEnd]);
+
+  //
+  // icons
+  //
   const pins = useMemo(() => {
     return geojson.features.map((feature, i) => {
       if (!feature.properties) {
@@ -146,6 +181,7 @@ function App() {
         return (
           <Marker
             key={`marker-${i}`}
+            style={{ cursor: "pointer" }}
             longitude={feature.properties.center[0]}
             latitude={feature.properties.center[1]}
             anchor="bottom"
@@ -182,26 +218,9 @@ function App() {
           left: 0,
           height: "100vh",
           width: "100vw",
+          display: "flex",
         }}
       >
-        <div
-          className="fa-2xl"
-          style={{
-            zIndex: 100,
-            display: "flex",
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            textAlign: "center",
-            verticalAlign: "middle",
-          }}
-        >
-          {loadingOverpass ? (
-            <FontAwesomeIcon size="2x" spin={true} icon={faSpinner} />
-          ) : (
-            <FontAwesomeIcon size="2x" icon={faXmark} />
-          )}
-        </div>
         <Map
           {...viewState}
           onMove={onMapMove}
@@ -211,15 +230,38 @@ function App() {
           onClick={onClick}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
+          onMouseDown={onMouseDown}
+          onMouseMove={onMouseMove}
+          onMouseUp={onMouseUp}
+          //dragPan={false}
+          dragRotate={false}
+          boxZoom={false}
+          hash={true}
           cursor={cursor}
           mapLib={maplibregl}
-          hash={true}
           style={{ width: "100%", height: "100%" }}
           mapStyle="https://raw.githubusercontent.com/geoloniamaps/basic/gh-pages/style.json"
         >
+          <div
+            className="fa-2xl"
+            style={{
+              zIndex: 100,
+              display: "flex",
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              textAlign: "center",
+              verticalAlign: "middle",
+            }}
+          >
+            {loadingOverpass ? (
+              <FontAwesomeIcon size="2x" spin={true} icon={faSpinner} />
+            ) : (
+              <FontAwesomeIcon size="2x" icon={faXmark} />
+            )}
+          </div>
           <Source id="buildings-source" type="geojson" data={geojson}>
             <Layer {...layerStyleFill} />
-            <Layer {...layerStyleIcon} />
           </Source>
           {pins}
           {hoverInfo && (
@@ -240,13 +282,13 @@ function App() {
           )}
           <GeolocateControl
             ref={geolocateControlRef}
+            position="top-left"
+            style={{ marginTop: "55px" }}
             showUserLocation={true}
             showAccuracyCircle={false}
             trackUserLocation={false}
             positionOptions={{ enableHighAccuracy: true }}
             fitBoundsOptions={{ zoom: 17 }}
-            style={{ marginTop: "55px" }}
-            position="top-left"
           />
         </Map>
       </div>
