@@ -1,4 +1,4 @@
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import React, { FormEvent, useCallback, useEffect, useState } from "react";
 import { MapboxGeoJSONFeature } from "react-map-gl";
 import * as OSM from "osm-api";
 import { LoginButton } from "../LoginButton";
@@ -34,12 +34,12 @@ const AddressDetailFieldList = [
   {
     key: "addr:block_number",
     displayName: "番地",
-    placeholder: "10",
+    placeholder: "17",
   },
   {
     key: "addr:housenumber",
     displayName: "号",
-    placeholder: "10",
+    placeholder: "6",
     prefix: "-",
   },
 ];
@@ -119,9 +119,20 @@ export const AddressEditor: React.VFC<{
   feature: MapboxGeoJSONFeature;
   onCancel: () => void;
 }> = ({ feature, onCancel }) => {
+  const [submitting, setSubmitting] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
   useEffect(() => {
     setLoggedIn(OSM.isLoggedIn());
+  }, []);
+
+  const onSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
+    setSubmitting(true);
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const body: any = {};
+    formData.forEach((value, key) => (body[key] = value));
+    console.info(JSON.stringify(body, null, 2));
+    setSubmitting(false);
   }, []);
 
   return (
@@ -147,7 +158,7 @@ export const AddressEditor: React.VFC<{
               </span>
             </span>
           </div>
-          <form>
+          <form onSubmit={onSubmit}>
             <div className="flex flex-wrap">
               <AddressInputField
                 feature={feature}
@@ -182,15 +193,19 @@ export const AddressEditor: React.VFC<{
               <div className="w-full py-2 px-2 mb-6 md:mb-0">
                 <button
                   onClick={onCancel}
+                  type="button"
                   className="button rounded mr-4 py-2 px-3  bg-gray-200 text-red-600 hover:text-red-800"
                 >
                   Cancel
                 </button>
-                <button className="button rounded mr-4 py-2 px-3 bg-green-300 text-gray-800 hover:text-white">
+                <button
+                  type="button"
+                  className="button rounded mr-4 py-2 px-3 bg-green-300 text-gray-800 hover:text-white"
+                >
                   Load address from coordinates (work in progress...)
                 </button>
                 <button
-                  disabled={!loggedIn}
+                  disabled={!loggedIn || submitting}
                   className="button rounded mr-2 py-2 px-3 bg-blue-300 text-gray-800 disabled:bg-blue-100 disabled:text-gray-400 hover:text-white"
                 >
                   Submit to OpenStreetMap (work in progress...)
