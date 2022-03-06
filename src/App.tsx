@@ -143,14 +143,12 @@ function App() {
 
   const onMouseLeave = useCallback((e: MapLayerMouseEvent) => {
     setCursor("auto");
-    const { features } = e;
-    const hoveredFeature = features && features[0];
-    if (hoveredFeature) {
+    mapRef.current?.querySourceFeatures("buildings-source").map((feature) => {
       mapRef.current?.setFeatureState(
-        { source: "buildings-source", id: hoveredFeature.id },
+        { source: "buildings-source", id: feature.id },
         { hover: false }
       );
-    }
+    });
     setHoverInfo(undefined);
   }, []);
 
@@ -173,8 +171,7 @@ function App() {
   }, []);
 
   const onReset = useCallback(() => {
-    const all = mapRef.current?.querySourceFeatures("buildings-source");
-    all?.map((feature) => {
+    mapRef.current?.querySourceFeatures("buildings-source").map((feature) => {
       mapRef.current?.setFeatureState(
         { source: "buildings-source", id: feature.id },
         { select: false }
