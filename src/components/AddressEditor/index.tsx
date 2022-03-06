@@ -1,6 +1,7 @@
 import React, { FormEvent, useCallback, useEffect, useState } from "react";
 import { MapboxGeoJSONFeature } from "react-map-gl";
 import * as OSM from "osm-api";
+import { openReverseGeocoder } from "@geolonia/open-reverse-geocoder";
 import { LoginButton } from "../LoginButton";
 
 const AddressPostcodeField = {
@@ -119,10 +120,19 @@ export const AddressEditor: React.VFC<{
   feature: MapboxGeoJSONFeature;
   onCancel: () => void;
 }> = ({ feature, onCancel }) => {
+  const center = JSON.parse(feature.properties?.center);
+
   const [submitting, setSubmitting] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
+
   useEffect(() => {
     setLoggedIn(OSM.isLoggedIn());
+  }, []);
+
+  const onLoadAddress = useCallback(async () => {
+    console.info("openReverseGeocoder", [center[0], center[1]]);
+    const result = await openReverseGeocoder([center[0], center[1]]);
+    console.info("openReverseGeocoder", result);
   }, []);
 
   const onSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
@@ -192,14 +202,15 @@ export const AddressEditor: React.VFC<{
             <div className="flex flex-wrap">
               <div className="w-full py-2 px-2 mb-6 md:mb-0">
                 <button
-                  onClick={onCancel}
                   type="button"
+                  onClick={onCancel}
                   className="button rounded mr-4 py-2 px-3  bg-gray-200 text-red-600 hover:text-red-800"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
+                  onClick={onLoadAddress}
                   className="button rounded mr-4 py-2 px-3 bg-green-300 text-gray-800 hover:text-white"
                 >
                   Load address from coordinates (work in progress...)
