@@ -29,6 +29,11 @@ import { toSvg } from "jdenticon";
 import { Header } from "./components/Header";
 // libs
 import { useOverpass } from "./lib/hooks/overpass";
+import {
+  AddressEditor,
+  AddressTextView,
+  CoordinatesTextView,
+} from "./components/AddressEditor";
 
 const layerStyleFill: LayerProps = {
   id: "buildings-layer-fill",
@@ -69,12 +74,9 @@ function App() {
     { x: number; y: number; feature: MapboxGeoJSONFeature } | undefined
   >();
 
-  /*
-  // TODO dragで範囲選択したい
-  const [dragging, setDragging] = useState(false);
-  const [dragStart, setDragStart] = useState<Point>();
-  const [dragEnd, setDragEnd] = useState<Point>();
-  */
+  const [selectedFeatures, setSelectedFeatures] = useState<
+    MapboxGeoJSONFeature[]
+  >([]);
 
   const [loadingOverpass, setLoadingOverpass] = useState<boolean>();
   const { fetchOverpass } = useOverpass();
@@ -152,49 +154,8 @@ function App() {
     setHoverInfo(undefined);
   }, []);
 
-  /*
-  // TODO dragで範囲選択したい
-  const onMouseDown = useCallback((e: MapLayerMouseEvent) => {
-    console.log("onMouseDown", e.point);
-    if (!e.originalEvent.shiftKey) {
-      return;
-    }
-    if (e.originalEvent.button !== 0) {
-      return;
-    }
-    setDragging(true);
-    setDragStart(e.point);
-  }, []);
-
-  const onMouseMove = useCallback(
-    (e: MapLayerMouseEvent) => {
-      if (!dragging) {
-        return;
-      }
-      setDragEnd(e.point);
-    },
-    [dragging]
-  );
-
-  const onMouseUp = useCallback((e: MapLayerMouseEvent) => {
-    console.log("onMouseUp", e.point);
-    setDragEnd(e.point);
-    setDragging(false);
-  }, []);
-
-  //
-  // selecting
-  //
-  useEffect(() => {
-    if (dragging) {
-      return;
-    }
-    console.log("drag select: ", dragging, dragStart, dragEnd);
-  }, [dragging, dragStart, dragEnd]);
-
-  */
-
   const onClick = useCallback((event) => {
+    onReset();
     const clickedFeature = event.features && event.features[0];
     if (!clickedFeature) {
       return;
@@ -203,11 +164,23 @@ function App() {
       { source: "buildings-source", id: clickedFeature.id },
       { select: true }
     );
+    setSelectedFeatures([clickedFeature]);
     /*
     const osmurl =
       "https://www.openstreetmap.org/" + clickedFeature.properties.id;
     window.open(osmurl, "_blank")?.focus();
     */
+  }, []);
+
+  const onReset = useCallback(() => {
+    const all = mapRef.current?.querySourceFeatures("buildings-source");
+    all?.map((feature) => {
+      mapRef.current?.setFeatureState(
+        { source: "buildings-source", id: feature.id },
+        { select: false }
+      );
+    });
+    setSelectedFeatures([]);
   }, []);
 
   //
@@ -262,12 +235,21 @@ function App() {
           flexDirection: "column",
         }}
       >
-        <div
-          style={{
-            height: "200px",
-            width: "100vw",
-          }}
-        ></div>
+        {selectedFeatures.length > 0 && (
+          <div
+            style={{
+              marginTop: "35px",
+              height: "200px",
+              width: "100vw",
+            }}
+          >
+            <div style={{ padding: "10px" }}>
+              {selectedFeatures.map((feature) => {
+                return <AddressEditor key={feature.id} feature={feature} />;
+              })}
+            </div>
+          </div>
+        )}
         <Map
           ref={mapRef}
           {...viewState}
@@ -325,7 +307,9 @@ function App() {
                 top: hoverInfo.y + 5,
               }}
             >
-              <pre>{JSON.stringify(hoverInfo.feature.properties, null, 2)}</pre>
+              <CoordinatesTextView feature={hoverInfo.feature} />
+              <br />
+              <AddressTextView feature={hoverInfo.feature} />
             </div>
           )}
           <GeolocateControl

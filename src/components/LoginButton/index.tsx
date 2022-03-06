@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import * as OSM from "osm-api";
-import "./index.css";
 
 export const LoginButton: React.VFC = () => {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -32,9 +31,21 @@ export const LoginButton: React.VFC = () => {
   return (
     <div>
       {loggedIn ? (
-        <button onClick={logout}>logout</button>
+        <button
+          style={{ height: "44px" }}
+          className="button py-1 px-1 border-transparent border-4 bg-gray-300 text-gray-900 hover:text-gray-500"
+          onClick={logout}
+        >
+          logout
+        </button>
       ) : (
-        <button onClick={login}>login</button>
+        <button
+          style={{ height: "44px" }}
+          className="button py-1 px-1 border-transparent border-4 bg-gray-300 text-gray-900 hover:text-gray-500"
+          onClick={login}
+        >
+          login
+        </button>
       )}
     </div>
   );

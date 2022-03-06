@@ -13,13 +13,16 @@
     "@fortawesome/free-solid-svg-icons": "^6.0.0",
     "@fortawesome/react-fontawesome": "^0.1.17",
     "@turf/turf": "^6.5.0",
+    "autoprefixer": "^10.4.2",
     "jdenticon": "^3.1.1",
     "maplibre-gl": "^2.1.6",
     "osm-api": "^1.0.2",
     "osmtogeojson": "^3.0.0-beta.4",
+    "postcss": "^8.4.7",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-map-gl": "^7.0.7"
+    "react-map-gl": "^7.0.7",
+    "tailwindcss": "^3.0.23"
   },
   "devDependencies": {
     "@types/geojson": "^7946.0.8",

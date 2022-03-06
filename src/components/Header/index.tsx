@@ -34,7 +34,12 @@ export const Header: React.VFC = () => {
       }}
     >
       <div>
-        <h1 style={{ display: "inline", margin: "0px" }}>OSM address editor</h1>
+        <h1
+          className="text-4xl font-bold"
+          style={{ display: "inline", margin: "0px" }}
+        >
+          OSM address editor
+        </h1>
         {currentUser ? (
           <span style={{ marginLeft: "10px" }}>
             Hi {currentUser?.display_name}, You have{" "}
