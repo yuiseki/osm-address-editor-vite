@@ -52,8 +52,12 @@ export const Header: React.VFC = () => {
         )}
       </div>
       <div style={{ display: "flex", flex: 1, justifyContent: "end" }}>
-        <UserIcon />
-        <LoginButton />
+        <div>
+          <UserIcon />
+        </div>
+        <div>
+          <LoginButton />
+        </div>
       </div>
     </div>
   );

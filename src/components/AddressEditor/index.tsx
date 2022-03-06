@@ -1,7 +1,9 @@
-import { FormEvent, useCallback, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { MapboxGeoJSONFeature } from "react-map-gl";
+import * as OSM from "osm-api";
+import { LoginButton } from "../LoginButton";
 
-const AddressPostcode = {
+const AddressPostcodeField = {
   key: "addr:postcode",
   displayName: "郵便番号",
   placeholder: "101-0021",
@@ -61,7 +63,7 @@ const AddressInputField: React.VFC<{
         {label ? label : fieldName}
       </label>
       <input
-        className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-200 rounded py-2 px-1 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+        className="appearance-none block w-full leading-tight rounded py-2 px-1 border border-gray-300 bg-gray-100 text-black placeholder-gray-500 placeholder-opacity-50 focus:outline-none focus:bg-white focus:border-gray-500"
         id={fieldName}
         name={fieldName}
         type="text"
@@ -96,7 +98,7 @@ export const AddressTextView: React.VFC<{ feature: MapboxGeoJSONFeature }> = ({
   return (
     <>
       <span className="addr:postcode">
-        {feature.properties?.[AddressPostcode.key]}
+        {feature.properties?.[AddressPostcodeField.key]}
       </span>{" "}
       {AddressMainFieldList.map((f) => {
         return <span className={f.key}>{feature.properties?.[f.key]}</span>;
@@ -113,9 +115,15 @@ export const AddressTextView: React.VFC<{ feature: MapboxGeoJSONFeature }> = ({
   );
 };
 
-export const AddressEditor: React.VFC<{ feature: MapboxGeoJSONFeature }> = ({
-  feature,
-}) => {
+export const AddressEditor: React.VFC<{
+  feature: MapboxGeoJSONFeature;
+  onCancel: () => void;
+}> = ({ feature, onCancel }) => {
+  const [loggedIn, setLoggedIn] = useState(false);
+  useEffect(() => {
+    setLoggedIn(OSM.isLoggedIn());
+  }, []);
+
   return (
     <div>
       {feature.properties && (
@@ -139,36 +147,65 @@ export const AddressEditor: React.VFC<{ feature: MapboxGeoJSONFeature }> = ({
               </span>
             </span>
           </div>
-          <div className="flex flex-wrap">
-            <AddressInputField
-              feature={feature}
-              fieldName={AddressPostcode.key}
-              label={AddressPostcode.displayName}
-              placeholder={AddressPostcode.placeholder}
-            />
-            {AddressMainFieldList.map((field) => {
-              return (
-                <AddressInputField
-                  feature={feature}
-                  fieldName={field.key}
-                  label={field.displayName}
-                  placeholder={field.placeholder}
-                />
-              );
-            })}
-          </div>
-          <div className="flex flex-wrap">
-            {AddressDetailFieldList.map((field) => {
-              return (
-                <AddressInputField
-                  feature={feature}
-                  fieldName={field.key}
-                  label={field.displayName}
-                  placeholder={field.placeholder}
-                />
-              );
-            })}
-          </div>
+          <form>
+            <div className="flex flex-wrap">
+              <AddressInputField
+                feature={feature}
+                fieldName={AddressPostcodeField.key}
+                label={AddressPostcodeField.displayName}
+                placeholder={AddressPostcodeField.placeholder}
+              />
+              {AddressMainFieldList.map((field) => {
+                return (
+                  <AddressInputField
+                    feature={feature}
+                    fieldName={field.key}
+                    label={field.displayName}
+                    placeholder={field.placeholder}
+                  />
+                );
+              })}
+            </div>
+            <div className="flex flex-wrap">
+              {AddressDetailFieldList.map((field) => {
+                return (
+                  <AddressInputField
+                    feature={feature}
+                    fieldName={field.key}
+                    label={field.displayName}
+                    placeholder={field.placeholder}
+                  />
+                );
+              })}
+            </div>
+            <div className="flex flex-wrap">
+              <div className="w-full py-2 px-2 mb-6 md:mb-0">
+                <button
+                  onClick={onCancel}
+                  className="button rounded mr-4 py-2 px-3  bg-gray-200 text-red-600 hover:text-red-800"
+                >
+                  Cancel
+                </button>
+                <button className="button rounded mr-4 py-2 px-3 bg-green-300 text-gray-800 hover:text-white">
+                  Load address from coordinates
+                </button>
+                <button
+                  disabled={!loggedIn}
+                  className="button rounded mr-2 py-2 px-3 bg-blue-300 text-gray-800 disabled:bg-blue-100 disabled:text-gray-400 hover:text-white"
+                >
+                  Submit to OpenStreetMap
+                </button>
+                {!loggedIn && (
+                  <>
+                    <span className="mr-2 underline text-red-600">
+                      Require logged in before you submit data to OpenStreetMap
+                    </span>
+                    <LoginButton />
+                  </>
+                )}
+              </div>
+            </div>
+          </form>
         </>
       )}
     </div>

@@ -29,7 +29,7 @@ export const LoginButton: React.VFC = () => {
   }, []);
 
   return (
-    <div>
+    <>
       {loggedIn ? (
         <button
           style={{ height: "44px" }}
@@ -47,6 +47,6 @@ export const LoginButton: React.VFC = () => {
           login
         </button>
       )}
-    </div>
+    </>
   );
 };

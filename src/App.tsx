@@ -236,13 +236,19 @@ function App() {
           <div
             style={{
               marginTop: "35px",
-              height: "200px",
+              height: "300px",
               width: "100vw",
             }}
           >
             <div style={{ padding: "10px" }}>
               {selectedFeatures.map((feature) => {
-                return <AddressEditor key={feature.id} feature={feature} />;
+                return (
+                  <AddressEditor
+                    key={feature.id}
+                    feature={feature}
+                    onCancel={onReset}
+                  />
+                );
               })}
             </div>
           </div>

@@ -23,7 +23,7 @@ export const UserIcon: React.VFC = () => {
   }, [loggedIn]);
 
   return (
-    <div>
+    <>
       {currentUser ? (
         <img
           style={{ width: "44px", height: "44px" }}
@@ -34,6 +34,6 @@ export const UserIcon: React.VFC = () => {
       ) : (
         <img />
       )}
-    </div>
+    </>
   );
 };
