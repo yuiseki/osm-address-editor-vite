@@ -235,9 +235,13 @@ function App() {
         {selectedFeatures.length > 0 && (
           <div
             style={{
-              marginTop: "35px",
-              height: "300px",
+              zIndex: 200,
+              position: "absolute",
+              top: "44px",
+              left: 0,
+              height: "250px",
               width: "100vw",
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
             }}
           >
             <div style={{ padding: "10px" }}>

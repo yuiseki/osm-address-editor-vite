@@ -28,9 +28,12 @@ export const Header: React.VFC = () => {
       style={{
         zIndex: 100,
         position: "relative",
+        top: 0,
+        left: 0,
+        height: "44px",
         display: "flex",
         flexDirection: "row",
-        backgroundColor: "rgba(0, 255, 255, 0.8)",
+        backgroundColor: "rgba(0, 255, 255, 0.9)",
       }}
     >
       <div>
