@@ -10,7 +10,7 @@ export const useOverpass = () => {
     console.log("overpass: loading...");
     let query = "[out:json]";
     query += "[timeout:25];\n";
-    query += 'way["building"="yes"]';
+    query += 'way["building"]';
     query += `(around:${300},${latitude},${longitude});\n`;
     query += "out meta geom;";
     console.log(query);
