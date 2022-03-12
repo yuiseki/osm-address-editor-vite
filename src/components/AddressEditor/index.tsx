@@ -18,9 +18,15 @@ const AddressInputField: React.VFC<{
   placeholder?: string;
 }> = ({ feature, fieldName, label, placeholder }) => {
   const [value, setValue] = useState(feature.properties?.[fieldName]);
+
+  useEffect(() => {
+    setValue(feature.properties?.[fieldName]);
+  }, [feature]);
+
   const onChange = useCallback((e: FormEvent<HTMLInputElement>) => {
     setValue(e.currentTarget.value);
   }, []);
+
   return (
     <div className="w-full md:w-1/6 py-1 px-2 mb-6 md:mb-0">
       <label
@@ -47,6 +53,7 @@ export const AddressEditor: React.VFC<{
   onCancel: () => void;
 }> = ({ feature, onCancel }) => {
   const center = JSON.parse(feature.properties?.center);
+  const [editingFeature, setEditingFeature] = useState(feature);
 
   const [submitting, setSubmitting] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
@@ -55,10 +62,25 @@ export const AddressEditor: React.VFC<{
     setLoggedIn(OSM.isLoggedIn());
   }, []);
 
-  const onLoadAddress = useCallback(async () => {
+  useEffect(() => {
+    console.log(editingFeature.properties);
+  }, [editingFeature]);
+
+  const onReverseGeocode = useCallback(async () => {
     console.info("openReverseGeocoder", [center[0], center[1]]);
     const result = await openReverseGeocoder([center[0], center[1]]);
     console.info("openReverseGeocoder", result);
+
+    setEditingFeature((prevFeature) => {
+      const updateFields = {
+        properties: {
+          "addr:province": result.prefecture,
+          "addr:city": result.city,
+          ...prevFeature.properties,
+        },
+      };
+      return { ...prevFeature, ...updateFields };
+    });
   }, []);
 
   const onSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
@@ -73,31 +95,33 @@ export const AddressEditor: React.VFC<{
 
   return (
     <div>
-      {feature.properties && (
+      {editingFeature.properties && (
         <>
           <div>
             OSM:{" "}
             <a
               className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
-              href={"https://www.openstreetmap.org/" + feature.properties.id}
+              href={
+                "https://www.openstreetmap.org/" + editingFeature.properties.id
+              }
               target="_blank"
             >
-              {feature.properties.id}
+              {editingFeature.properties.id}
             </a>
             {" | "}
-            <CoordinatesTextView feature={feature} />
+            <CoordinatesTextView feature={editingFeature} />
             {" | "}
             <span>
               Address:{" "}
               <span className="underline">
-                <AddressTextView feature={feature} />
+                <AddressTextView feature={editingFeature} />
               </span>
             </span>
           </div>
           <form onSubmit={onSubmit}>
             <div className="flex flex-wrap">
               <AddressInputField
-                feature={feature}
+                feature={editingFeature}
                 fieldName={AddressPostcodeField.key}
                 label={AddressPostcodeField.displayName}
                 placeholder={AddressPostcodeField.placeholder}
@@ -106,7 +130,7 @@ export const AddressEditor: React.VFC<{
                 return (
                   <AddressInputField
                     key={field.key}
-                    feature={feature}
+                    feature={editingFeature}
                     fieldName={field.key}
                     label={field.displayName}
                     placeholder={field.placeholder}
@@ -119,7 +143,7 @@ export const AddressEditor: React.VFC<{
                 return (
                   <AddressInputField
                     key={field.key}
-                    feature={feature}
+                    feature={editingFeature}
                     fieldName={field.key}
                     label={field.displayName}
                     placeholder={field.placeholder}
@@ -138,10 +162,10 @@ export const AddressEditor: React.VFC<{
                 </button>
                 <button
                   type="button"
-                  onClick={onLoadAddress}
+                  onClick={onReverseGeocode}
                   className="button rounded mr-4 py-2 px-3 bg-green-300 text-gray-800 hover:text-white"
                 >
-                  Load address from coordinates (work in progress...)
+                  Load address from coordinates
                 </button>
                 <button
                   disabled={!loggedIn || submitting}
