@@ -45,6 +45,7 @@ export const useOverpass = () => {
       {}
     );
     if (res.status !== 200) {
+      setLoadingOverpass(false);
       return emptyGeoJSON;
     }
     // convert res to json
