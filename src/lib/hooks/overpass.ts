@@ -15,7 +15,7 @@ export const useOverpass = () => {
 
   const fetchOverpass = useCallback(async (latitude, longitude, zoom) => {
     console.log(zoom);
-    if (zoom < 18) {
+    if (zoom < 16) {
       return emptyGeoJSON;
     }
     let around = 300;
