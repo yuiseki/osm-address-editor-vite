@@ -22,7 +22,11 @@ import type { FeatureCollection, GeometryObject } from "geojson";
 
 // appearance
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner, faXmark } from "@fortawesome/free-solid-svg-icons";
+import {
+  faSearchPlus,
+  faSpinner,
+  faXmark,
+} from "@fortawesome/free-solid-svg-icons";
 import { toSvg } from "jdenticon";
 
 // components
@@ -33,7 +37,31 @@ import { AddressEditor } from "./components/AddressEditor";
 import { useDebounce } from "./lib/hooks/debounce";
 import { CoordinatesTextView } from "./components/Feature/CoordinatesTextView";
 import { AddressTextView } from "./components/Feature/AddressTextView";
-import { AddressKeys } from "./components/Feature/fields";
+
+const RASTER_TILE_STYLE: mapboxgl.Style = {
+  version: 8,
+  sources: {
+    "raster-tiles": {
+      type: "raster",
+      tiles: [
+        "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      ],
+      tileSize: 256,
+      attribution: "© OpenStreetMap contributors",
+    },
+  },
+  layers: [
+    {
+      id: "osm-tiles",
+      type: "raster",
+      source: "raster-tiles",
+      minzoom: 0,
+      maxzoom: 20,
+    },
+  ],
+};
 
 const layerStyleFill: LayerProps = {
   id: "buildings-layer-fill",
@@ -66,7 +94,7 @@ const layerStyleFill: LayerProps = {
         ["boolean", ["has", "addr:housenumber"], false],
       ],
       "yellow",
-      "pink",
+      "red",
     ],
     "fill-opacity": [
       "case",
@@ -123,11 +151,22 @@ function App() {
   //
   // map events
   //
-  const onMapLoad = useCallback(async (e: MapboxEvent) => {
+  const onMapLoad = useCallback((e: MapboxEvent) => {
     const center = e.target.getCenter();
     const zoom = e.target.getZoom();
-    const newGeojson = await fetchOverpass(center.lat, center.lng, zoom);
-    setGeojson(newGeojson);
+    setViewState({
+      zoom: zoom,
+      latitude: center.lat,
+      longitude: center.lng,
+      bearing: 0,
+      pitch: 0,
+      padding: {
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+      },
+    });
   }, []);
 
   const onMapMove = useCallback((e: ViewStateChangeEvent) => {
@@ -212,9 +251,8 @@ function App() {
   // icons
   //
   const pins = useMemo(() => {
-    let size = 30;
+    let size = 20;
     if (viewState) {
-      console.log(viewState.zoom);
       size = viewState.zoom < 18 ? 15 : 30;
     }
     return geojson.features.map((feature, i) => {
@@ -311,7 +349,7 @@ function App() {
           cursor={cursor}
           mapLib={maplibregl}
           style={{ width: "100%", height: "100%" }}
-          mapStyle="https://raw.githubusercontent.com/geoloniamaps/basic/gh-pages/style.json"
+          mapStyle={RASTER_TILE_STYLE}
         >
           <div
             className="fa-2xl"
@@ -325,8 +363,10 @@ function App() {
               verticalAlign: "middle",
             }}
           >
-            {loadingOverpass ? (
-              <FontAwesomeIcon size="2x" spin={true} icon={faSpinner} />
+            {!viewState || (viewState?.zoom && viewState.zoom < 17) ? (
+              <FontAwesomeIcon size="2x" icon={faSearchPlus} />
+            ) : loadingOverpass ? (
+              <FontAwesomeIcon size="2x" icon={faSpinner} spin={true} />
             ) : (
               <FontAwesomeIcon size="2x" icon={faXmark} />
             )}
