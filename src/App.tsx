@@ -15,6 +15,7 @@ import Map, {
   Marker,
   Point,
   Source,
+  ViewState,
   ViewStateChangeEvent,
 } from "react-map-gl";
 
@@ -34,6 +35,7 @@ import {
   AddressTextView,
   CoordinatesTextView,
 } from "./components/AddressEditor";
+import { useDebounce } from "./lib/hooks/debounce";
 
 const layerStyleFill: LayerProps = {
   id: "buildings-layer-fill",
@@ -62,14 +64,19 @@ const layerStyleFill: LayerProps = {
 
 function App() {
   const mapRef = useRef<MapRef>(null);
-  const [viewState, setViewState] = useState({});
+
+  const [viewState, setViewState] = useState<ViewState>();
+  const debouncedViewState = useDebounce<ViewState>(viewState, 1000);
+
   const geolocateControlRef = useRef<GeolocateControlRef>(null);
+
   const [geojson, setGeojson] = useState<FeatureCollection<GeometryObject>>({
     type: "FeatureCollection",
     features: [],
   });
 
   const [cursor, setCursor] = useState<string>("auto");
+
   const [hoverInfo, setHoverInfo] = useState<
     { x: number; y: number; feature: MapboxGeoJSONFeature } | undefined
   >();
@@ -78,50 +85,58 @@ function App() {
     MapboxGeoJSONFeature[]
   >([]);
 
-  const [loadingOverpass, setLoadingOverpass] = useState<boolean>();
-  const { fetchOverpass } = useOverpass();
+  const { fetchOverpass, loadingOverpass } = useOverpass();
 
   //
   // initial load
   //
   useEffect(() => {
     setTimeout(() => {
+      // trigger geolocate if map hash is /0/0
       console.log(window.location.hash);
-      if (window.location.hash.endsWith("/0/0")) {
-        console.log("geolocateControlRef trigger");
-        geolocateControlRef.current?.trigger();
+      if (!window.location.hash.endsWith("/0/0")) {
+        return;
       }
+      console.log("geolocateControlRef trigger");
+      geolocateControlRef.current?.trigger();
     }, 500);
   }, []);
 
   //
-  // map event
+  // map events
   //
   const onMapLoad = useCallback(async (e: MapboxEvent) => {
     const center = e.target.getCenter();
-    setLoadingOverpass(true);
-    const newGeojson = await fetchOverpass(center.lat, center.lng);
+    const zoom = e.target.getZoom();
+    const newGeojson = await fetchOverpass(center.lat, center.lng, zoom);
     setGeojson(newGeojson);
-    setLoadingOverpass(false);
   }, []);
 
   const onMapMove = useCallback((e: ViewStateChangeEvent) => {
     setViewState(e.viewState);
   }, []);
 
-  const onMapMoveEnd = useCallback(async (e: ViewStateChangeEvent) => {
+  const onMapMoveEnd = useCallback((e: ViewStateChangeEvent) => {
     setViewState(e.viewState);
-    const center = e.viewState;
-    if (!loadingOverpass) {
-      setLoadingOverpass(true);
-      const newGeojson = await fetchOverpass(center.latitude, center.longitude);
-      setGeojson(newGeojson);
-      setLoadingOverpass(false);
-    }
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      if (!debouncedViewState) {
+        return;
+      }
+      const center = debouncedViewState;
+      const newGeojson = await fetchOverpass(
+        center.latitude,
+        center.longitude,
+        center.zoom
+      );
+      setGeojson(newGeojson);
+    })();
+  }, [debouncedViewState]);
+
   //
-  // mouse event
+  // mouse events
   //
   const onMouseEnter = useCallback((e: MapLayerMouseEvent) => {
     setCursor("pointer");
@@ -163,11 +178,6 @@ function App() {
       { select: true }
     );
     setSelectedFeatures([clickedFeature]);
-    /*
-    const osmurl =
-      "https://www.openstreetmap.org/" + clickedFeature.properties.id;
-    window.open(osmurl, "_blank")?.focus();
-    */
   }, []);
 
   const onReset = useCallback(() => {
@@ -184,6 +194,11 @@ function App() {
   // icons
   //
   const pins = useMemo(() => {
+    let size = 15;
+    if (viewState) {
+      console.log(viewState.zoom);
+      size = viewState.zoom < 18 ? 15 : 30;
+    }
     return geojson.features.map((feature, i) => {
       if (!feature.properties) {
         return null;
@@ -200,14 +215,14 @@ function App() {
               <img
                 src={feature.properties.userIconHref}
                 style={{
-                  width: "30px",
-                  height: "30px",
+                  width: size + "px",
+                  height: size + "px",
                 }}
               />
             ) : (
               <span
                 dangerouslySetInnerHTML={{
-                  __html: toSvg(feature.properties.user || "noname", 30),
+                  __html: toSvg(feature.properties.user || "noname", size),
                 }}
               />
             )}
@@ -215,7 +230,7 @@ function App() {
         );
       }
     });
-  }, [geojson]);
+  }, [geojson, viewState]);
 
   return (
     <div>

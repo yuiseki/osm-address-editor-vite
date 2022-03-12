@@ -102,11 +102,15 @@ export const AddressTextView: React.VFC<{ feature: MapboxGeoJSONFeature }> = ({
         {feature.properties?.[AddressPostcodeField.key]}
       </span>{" "}
       {AddressMainFieldList.map((f) => {
-        return <span className={f.key}>{feature.properties?.[f.key]}</span>;
+        return (
+          <span key={f.key} className={f.key}>
+            {feature.properties?.[f.key]}
+          </span>
+        );
       })}{" "}
       {AddressDetailFieldList.map((f) => {
         return (
-          <span className={f.key}>
+          <span key={f.key} className={f.key}>
             {f.prefix ?? f.prefix}
             {feature.properties?.[f.key]}
           </span>
@@ -179,6 +183,7 @@ export const AddressEditor: React.VFC<{
               {AddressMainFieldList.map((field) => {
                 return (
                   <AddressInputField
+                    key={field.key}
                     feature={feature}
                     fieldName={field.key}
                     label={field.displayName}
@@ -191,6 +196,7 @@ export const AddressEditor: React.VFC<{
               {AddressDetailFieldList.map((field) => {
                 return (
                   <AddressInputField
+                    key={field.key}
                     feature={feature}
                     fieldName={field.key}
                     label={field.displayName}
