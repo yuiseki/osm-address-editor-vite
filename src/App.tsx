@@ -253,7 +253,7 @@ function App() {
   const pins = useMemo(() => {
     let size = 20;
     if (viewState) {
-      size = viewState.zoom < 18 ? 15 : 30;
+      size = viewState.zoom < 18 ? 15 : viewState.zoom < 19 ? 20 : 30;
     }
     return geojson.features.map((feature, i) => {
       if (!feature.properties) {
