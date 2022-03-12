@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import * as OSM from "osm-api";
 import { OsmUser } from "osm-api";
-import { LoginButton } from "../LoginButton";
-import { UserIcon } from "../UserIcon";
+import { LoginButton } from "./LoginButton";
+import { UserIcon } from "./UserIcon";
 
 export const Header: React.VFC = () => {
   const [loggedIn, setLoggedIn] = useState(false);

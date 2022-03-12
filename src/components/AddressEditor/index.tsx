@@ -2,7 +2,7 @@ import React, { FormEvent, useCallback, useEffect, useState } from "react";
 import { MapboxGeoJSONFeature } from "react-map-gl";
 import * as OSM from "osm-api";
 import { openReverseGeocoder } from "@geolonia/open-reverse-geocoder";
-import { LoginButton } from "../LoginButton";
+import { LoginButton } from "../Header/LoginButton";
 
 const AddressPostcodeField = {
   key: "addr:postcode",
