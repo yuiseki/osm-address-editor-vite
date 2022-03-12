@@ -40,3 +40,9 @@ export const AddressDetailFieldList = [
     prefix: "-",
   },
 ];
+
+export const AddressKeys = [
+  AddressPostcodeField.key,
+  ...AddressMainFieldList.map((a) => a.key),
+  ...AddressDetailFieldList.map((a) => a.key),
+];

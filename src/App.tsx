@@ -13,7 +13,6 @@ import Map, {
   MapLayerMouseEvent,
   MapRef,
   Marker,
-  Point,
   Source,
   ViewState,
   ViewStateChangeEvent,
@@ -34,6 +33,7 @@ import { AddressEditor } from "./components/AddressEditor";
 import { useDebounce } from "./lib/hooks/debounce";
 import { CoordinatesTextView } from "./components/Feature/CoordinatesTextView";
 import { AddressTextView } from "./components/Feature/AddressTextView";
+import { AddressKeys } from "./components/Feature/fields";
 
 const layerStyleFill: LayerProps = {
   id: "buildings-layer-fill",
@@ -44,8 +44,28 @@ const layerStyleFill: LayerProps = {
       "case",
       ["boolean", ["feature-state", "select"], false],
       "green",
-      ["boolean", ["has", "addr:province"], false],
+      [
+        "all",
+        ["boolean", ["has", "addr:postcode"], false],
+        ["boolean", ["has", "addr:province"], false],
+        ["boolean", ["has", "addr:city"], false],
+        ["boolean", ["has", "addr:quarter"], false],
+        ["boolean", ["has", "addr:neighbourhood"], false],
+        ["boolean", ["has", "addr:block_number"], false],
+        ["boolean", ["has", "addr:housenumber"], false],
+      ],
       "blue",
+      [
+        "any",
+        ["boolean", ["has", "addr:postcode"], false],
+        ["boolean", ["has", "addr:province"], false],
+        ["boolean", ["has", "addr:city"], false],
+        ["boolean", ["has", "addr:quarter"], false],
+        ["boolean", ["has", "addr:neighbourhood"], false],
+        ["boolean", ["has", "addr:block_number"], false],
+        ["boolean", ["has", "addr:housenumber"], false],
+      ],
+      "yellow",
       "pink",
     ],
     "fill-opacity": [
@@ -264,6 +284,7 @@ function App() {
                     key={feature.id}
                     feature={feature}
                     onCancel={onReset}
+                    onSubmit={onReset}
                   />
                 );
               })}

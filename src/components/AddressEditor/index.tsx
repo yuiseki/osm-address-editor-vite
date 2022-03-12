@@ -10,6 +10,15 @@ import {
   AddressMainFieldList,
   AddressPostcodeField,
 } from "../Feature/fields";
+import { OsmChange, OsmWay } from "osm-api";
+
+const DEFAULT_TAGS = {
+  attribution: "https://yuiseki.github.io/osm-address-editor-vite/",
+  host: "https://yuiseki.github.io/osm-address-editor-vite/",
+  created_by: "osm-address-editor-vite",
+  locale: navigator.language,
+  comment: "Update address",
+};
 
 const AddressInputField: React.VFC<{
   feature: MapboxGeoJSONFeature;
@@ -51,7 +60,8 @@ const AddressInputField: React.VFC<{
 export const AddressEditor: React.VFC<{
   feature: MapboxGeoJSONFeature;
   onCancel: () => void;
-}> = ({ feature, onCancel }) => {
+  onSubmit: () => void;
+}> = ({ feature, onCancel, onSubmit }) => {
   const center = JSON.parse(feature.properties?.center);
   const [editingFeature, setEditingFeature] = useState(feature);
 
@@ -83,15 +93,39 @@ export const AddressEditor: React.VFC<{
     });
   }, []);
 
-  const onSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
-    setSubmitting(true);
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const body: any = {};
-    formData.forEach((value, key) => (body[key] = value));
-    console.info(JSON.stringify(body, null, 2));
-    setSubmitting(false);
-  }, []);
+  const onPostAddress = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      setSubmitting(true);
+      e.preventDefault();
+      const formData = new FormData(e.currentTarget);
+      const tags = JSON.parse(feature.properties?.tags);
+      formData.forEach((value, key) => {
+        if (typeof value === "string" && value.length > 0) {
+          tags[key] = value;
+        }
+      });
+      const changeSet = {
+        type: "way",
+        id: feature.id,
+        version: feature.properties?.version,
+        tags: tags,
+        nodes: JSON.parse(feature.properties?.nodes),
+      };
+      console.info(JSON.stringify(changeSet, null, 2));
+      const changes: OsmChange = {
+        create: [],
+        modify: [changeSet as OsmWay],
+        delete: [],
+      };
+      await OSM.uploadChangeset(DEFAULT_TAGS, changes);
+      setSubmitting(false);
+      window.alert(
+        "Successfully updated OpenStreetMap!!!\n Wait a minutes to apply to the map..."
+      );
+      onSubmit();
+    },
+    [feature]
+  );
 
   return (
     <div>
@@ -118,7 +152,7 @@ export const AddressEditor: React.VFC<{
               </span>
             </span>
           </div>
-          <form onSubmit={onSubmit}>
+          <form onSubmit={onPostAddress}>
             <div className="flex flex-wrap">
               <AddressInputField
                 feature={editingFeature}
@@ -171,7 +205,7 @@ export const AddressEditor: React.VFC<{
                   disabled={!loggedIn || submitting}
                   className="button rounded mr-2 py-2 px-3 bg-blue-300 text-gray-800 disabled:bg-blue-100 disabled:text-gray-400 hover:text-white"
                 >
-                  Submit to OpenStreetMap (work in progress...)
+                  Submit to OpenStreetMap!
                 </button>
                 {!loggedIn && (
                   <>

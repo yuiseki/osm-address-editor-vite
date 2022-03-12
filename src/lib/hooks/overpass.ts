@@ -5,12 +5,21 @@ import * as turf from "@turf/turf";
 
 import type { FeatureCollection, Polygon } from "geojson";
 
+const emptyGeoJSON = {
+  type: "FeatureCollection",
+  features: [],
+} as FeatureCollection;
+
 export const useOverpass = () => {
   const [loadingOverpass, setLoadingOverpass] = useState(false);
 
   const fetchOverpass = useCallback(async (latitude, longitude, zoom) => {
     let around = 300;
-    around = zoom < 18 ? 300 : zoom < 19 ? 150 : 50;
+    around = zoom < 18 ? 300 : zoom < 19 ? 150 : 80;
+
+    if (loadingOverpass) {
+      return emptyGeoJSON;
+    }
 
     setLoadingOverpass(true);
 
@@ -32,14 +41,11 @@ export const useOverpass = () => {
       {}
     );
     if (res.status !== 200) {
-      return {
-        type: "FeatureCollection",
-        features: [],
-      } as FeatureCollection;
+      return emptyGeoJSON;
     }
     // convert res to json
     const json = await res.json();
-    console.log("overpass json elements: ", json.elements.length);
+    console.log("overpass json elements: ", json.elements);
 
     // convert raw json to geojson
     const geojson = osmtogeojson(json) as FeatureCollection<Polygon>;
@@ -53,6 +59,20 @@ export const useOverpass = () => {
 
       // add id of feature as number
       feature.id = feature.properties.id.split("/")[1];
+
+      const element = json.elements.filter((e: any) => {
+        if (!feature.id) {
+          return false;
+        }
+        if (typeof feature.id === "number") {
+          return e.id === feature.id;
+        }
+        return e.id === parseInt(feature.id);
+      })?.[0];
+      if (element) {
+        feature.properties.tags = element.tags;
+        feature.properties.nodes = element.nodes;
+      }
 
       // add center of polygon
       if (feature.geometry.type === "Polygon") {
