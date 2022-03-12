@@ -83,10 +83,6 @@ const layerStyleFill: LayerProps = {
 function App() {
   const mapRef = useRef<MapRef>(null);
 
-  const [styleUrl, setStyleUrl] = useState(
-    "https://openmaptiles.github.io/positron-gl-style/style-cdn.json"
-  );
-
   const [viewState, setViewState] = useState<ViewState>();
   const debouncedViewState = useDebounce<ViewState>(viewState, 1000);
 
@@ -114,15 +110,6 @@ function App() {
   //
   useEffect(() => {
     setTimeout(() => {
-      // change style by hostname
-      if (
-        window.location.hostname === "localhost" ||
-        window.location.hostname === "127.0.0.1"
-      ) {
-        setStyleUrl(
-          "https://raw.githubusercontent.com/geoloniamaps/basic/gh-pages/style.json"
-        );
-      }
       // trigger geolocate if map hash is /0/0
       console.log(window.location.hash);
       if (!window.location.hash.endsWith("/0/0")) {
@@ -324,7 +311,7 @@ function App() {
           cursor={cursor}
           mapLib={maplibregl}
           style={{ width: "100%", height: "100%" }}
-          mapStyle={styleUrl}
+          mapStyle="https://raw.githubusercontent.com/geoloniamaps/basic/gh-pages/style.json"
         >
           <div
             className="fa-2xl"
