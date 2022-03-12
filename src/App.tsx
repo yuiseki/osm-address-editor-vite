@@ -363,7 +363,7 @@ function App() {
               verticalAlign: "middle",
             }}
           >
-            {!viewState || (viewState?.zoom && viewState.zoom < 17) ? (
+            {!viewState || (viewState?.zoom && viewState.zoom < 16) ? (
               <FontAwesomeIcon size="2x" icon={faSearchPlus} />
             ) : loadingOverpass ? (
               <FontAwesomeIcon size="2x" icon={faSpinner} spin={true} />
