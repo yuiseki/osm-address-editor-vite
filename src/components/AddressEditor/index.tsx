@@ -3,47 +3,13 @@ import { MapboxGeoJSONFeature } from "react-map-gl";
 import * as OSM from "osm-api";
 import { openReverseGeocoder } from "@geolonia/open-reverse-geocoder";
 import { LoginButton } from "../Header/LoggedInButton";
-
-const AddressPostcodeField = {
-  key: "addr:postcode",
-  displayName: "郵便番号",
-  placeholder: "101-0021",
-};
-const AddressMainFieldList = [
-  {
-    key: "addr:province",
-    displayName: "都道府県",
-    placeholder: "東京都",
-  },
-  {
-    key: "addr:city",
-    displayName: "市区町村",
-    placeholder: "千代田区",
-  },
-  {
-    key: "addr:quarter",
-    displayName: "地名",
-    placeholder: "外神田",
-  },
-];
-const AddressDetailFieldList = [
-  {
-    key: "addr:neighbourhood",
-    displayName: "丁目",
-    placeholder: "1丁目",
-  },
-  {
-    key: "addr:block_number",
-    displayName: "番地",
-    placeholder: "17",
-  },
-  {
-    key: "addr:housenumber",
-    displayName: "号",
-    placeholder: "6",
-    prefix: "-",
-  },
-];
+import { CoordinatesTextView } from "../Feature/CoordinatesTextView";
+import { AddressTextView } from "../Feature/AddressTextView";
+import {
+  AddressDetailFieldList,
+  AddressMainFieldList,
+  AddressPostcodeField,
+} from "../Feature/fields";
 
 const AddressInputField: React.VFC<{
   feature: MapboxGeoJSONFeature;
@@ -73,50 +39,6 @@ const AddressInputField: React.VFC<{
         onChange={onChange}
       />
     </div>
-  );
-};
-
-export const CoordinatesTextView: React.VFC<{
-  feature: MapboxGeoJSONFeature;
-}> = ({ feature }) => {
-  const center = JSON.parse(feature.properties?.center);
-  return (
-    <>
-      <span className="longitude">
-        Longitude: {Math.round(center[0] * 10000) / 10000}
-      </span>
-      {", "}
-      <span className="latitude">
-        Latitude: {Math.round(center[1] * 10000) / 10000}{" "}
-      </span>
-    </>
-  );
-};
-
-export const AddressTextView: React.VFC<{ feature: MapboxGeoJSONFeature }> = ({
-  feature,
-}) => {
-  return (
-    <>
-      <span className="addr:postcode">
-        {feature.properties?.[AddressPostcodeField.key]}
-      </span>{" "}
-      {AddressMainFieldList.map((f) => {
-        return (
-          <span key={f.key} className={f.key}>
-            {feature.properties?.[f.key]}
-          </span>
-        );
-      })}{" "}
-      {AddressDetailFieldList.map((f) => {
-        return (
-          <span key={f.key} className={f.key}>
-            {f.prefix ?? f.prefix}
-            {feature.properties?.[f.key]}
-          </span>
-        );
-      })}
-    </>
   );
 };
 

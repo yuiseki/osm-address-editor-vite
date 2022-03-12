@@ -30,12 +30,10 @@ import { toSvg } from "jdenticon";
 import { Header } from "./components/Header";
 // libs
 import { useOverpass } from "./lib/hooks/overpass";
-import {
-  AddressEditor,
-  AddressTextView,
-  CoordinatesTextView,
-} from "./components/AddressEditor";
+import { AddressEditor } from "./components/AddressEditor";
 import { useDebounce } from "./lib/hooks/debounce";
+import { CoordinatesTextView } from "./components/Feature/CoordinatesTextView";
+import { AddressTextView } from "./components/Feature/AddressTextView";
 
 const layerStyleFill: LayerProps = {
   id: "buildings-layer-fill",
@@ -194,7 +192,7 @@ function App() {
   // icons
   //
   const pins = useMemo(() => {
-    let size = 15;
+    let size = 30;
     if (viewState) {
       console.log(viewState.zoom);
       size = viewState.zoom < 18 ? 15 : 30;
