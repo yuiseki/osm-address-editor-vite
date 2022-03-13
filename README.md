@@ -36,16 +36,18 @@ This project uses following apis and npm packages:
 
 ## Structure
 
-- `/src`
-  - `index.html`
-    - Static HTML just load `main.tsx`
+- `index.html`
+  - Static HTML just load `src/main.tsx`
+- `src/`
   - `main.tsx`
     - Script file just load `App.tsx`
   - `App.tsx`
     - Main entrypoint of this project
-  - `/components`
+  - `components/`
     - Separable, Reusable UI components
-  - `/lib`
+    - `Feature/address/fields.ts`
+      - Most important code to localize fields of form of to edit address in many country
+  - `lib/`
     - Separable, Reusable libraries
 
 ## Development
