@@ -311,7 +311,6 @@ function App() {
               position: "absolute",
               top: "44px",
               left: 0,
-              height: "250px",
               width: "100vw",
               backgroundColor: "rgba(255, 255, 255, 0.9)",
             }}

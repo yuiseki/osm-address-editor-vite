@@ -11,6 +11,7 @@ import {
   AddressPostcodeField,
 } from "../Feature/fields";
 import { OsmChange, OsmWay } from "osm-api";
+import { useCountry } from "../../lib/hooks/country";
 
 const DEFAULT_TAGS = {
   attribution: "https://yuiseki.github.io/osm-address-editor-vite/",
@@ -62,7 +63,10 @@ export const AddressEditor: React.VFC<{
   onCancel: () => void;
   onSubmit: () => void;
 }> = ({ feature, onCancel, onSubmit }) => {
+  const { detectCountry } = useCountry();
+
   const center = JSON.parse(feature.properties?.center);
+  const [countryCode, setCountryCode] = useState();
   const [editingFeature, setEditingFeature] = useState(feature);
 
   const [submitting, setSubmitting] = useState(false);
@@ -71,6 +75,13 @@ export const AddressEditor: React.VFC<{
   useEffect(() => {
     setLoggedIn(OSM.isLoggedIn());
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      const country = await detectCountry(center[0], center[1]);
+      setCountryCode(country.properties["ISO_A2"]);
+    })();
+  }, [feature]);
 
   useEffect(() => {
     console.log(editingFeature.properties);
@@ -144,47 +155,85 @@ export const AddressEditor: React.VFC<{
             </a>
             {" | "}
             <CoordinatesTextView feature={editingFeature} />
-            {" | "}
-            <span>
-              Address:{" "}
-              <span className="underline">
-                <AddressTextView feature={editingFeature} />
+            {countryCode === "JP" && (
+              <span>
+                {" | "}
+                Address:{" "}
+                <span className="underline">
+                  <AddressTextView feature={editingFeature} />
+                </span>
               </span>
-            </span>
+            )}
           </div>
-          <form onSubmit={onPostAddress}>
-            <div className="flex flex-wrap">
-              <AddressInputField
-                feature={editingFeature}
-                fieldName={AddressPostcodeField.key}
-                label={AddressPostcodeField.displayName}
-                placeholder={AddressPostcodeField.placeholder}
-              />
-              {AddressMainFieldList.map((field) => {
-                return (
-                  <AddressInputField
-                    key={field.key}
-                    feature={editingFeature}
-                    fieldName={field.key}
-                    label={field.displayName}
-                    placeholder={field.placeholder}
-                  />
-                );
-              })}
-            </div>
-            <div className="flex flex-wrap">
-              {AddressDetailFieldList.map((field) => {
-                return (
-                  <AddressInputField
-                    key={field.key}
-                    feature={editingFeature}
-                    fieldName={field.key}
-                    label={field.displayName}
-                    placeholder={field.placeholder}
-                  />
-                );
-              })}
-            </div>
+          {countryCode === "JP" ? (
+            <form onSubmit={onPostAddress}>
+              <div className="flex flex-wrap">
+                <AddressInputField
+                  feature={editingFeature}
+                  fieldName={AddressPostcodeField.key}
+                  label={AddressPostcodeField.displayName}
+                  placeholder={AddressPostcodeField.placeholder}
+                />
+                {AddressMainFieldList.map((field) => {
+                  return (
+                    <AddressInputField
+                      key={field.key}
+                      feature={editingFeature}
+                      fieldName={field.key}
+                      label={field.displayName}
+                      placeholder={field.placeholder}
+                    />
+                  );
+                })}
+              </div>
+              <div className="flex flex-wrap">
+                {AddressDetailFieldList.map((field) => {
+                  return (
+                    <AddressInputField
+                      key={field.key}
+                      feature={editingFeature}
+                      fieldName={field.key}
+                      label={field.displayName}
+                      placeholder={field.placeholder}
+                    />
+                  );
+                })}
+              </div>
+              <div className="flex flex-wrap">
+                <div className="w-full py-2 px-2 mb-6 md:mb-0">
+                  <button
+                    type="button"
+                    onClick={onCancel}
+                    className="button rounded mr-4 py-2 px-3  bg-gray-200 text-red-600 hover:text-red-800"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onReverseGeocode}
+                    className="button rounded mr-4 py-2 px-3 bg-green-300 text-gray-800 hover:text-white"
+                  >
+                    Load address from coordinates
+                  </button>
+                  <button
+                    disabled={!loggedIn || submitting}
+                    className="button rounded mr-2 py-2 px-3 bg-blue-300 text-gray-800 disabled:bg-blue-100 disabled:text-gray-400 hover:text-white"
+                  >
+                    Submit to OpenStreetMap!
+                  </button>
+                  {!loggedIn && (
+                    <>
+                      <span className="mr-2 underline text-red-600">
+                        Require logged in before you submit data to
+                        OpenStreetMap
+                      </span>
+                      <LoginButton />
+                    </>
+                  )}
+                </div>
+              </div>
+            </form>
+          ) : (
             <div className="flex flex-wrap">
               <div className="w-full py-2 px-2 mb-6 md:mb-0">
                 <button
@@ -194,30 +243,9 @@ export const AddressEditor: React.VFC<{
                 >
                   Cancel
                 </button>
-                <button
-                  type="button"
-                  onClick={onReverseGeocode}
-                  className="button rounded mr-4 py-2 px-3 bg-green-300 text-gray-800 hover:text-white"
-                >
-                  Load address from coordinates
-                </button>
-                <button
-                  disabled={!loggedIn || submitting}
-                  className="button rounded mr-2 py-2 px-3 bg-blue-300 text-gray-800 disabled:bg-blue-100 disabled:text-gray-400 hover:text-white"
-                >
-                  Submit to OpenStreetMap!
-                </button>
-                {!loggedIn && (
-                  <>
-                    <span className="mr-2 underline text-red-600">
-                      Require logged in before you submit data to OpenStreetMap
-                    </span>
-                    <LoginButton />
-                  </>
-                )}
               </div>
             </div>
-          </form>
+          )}
         </>
       )}
     </div>
