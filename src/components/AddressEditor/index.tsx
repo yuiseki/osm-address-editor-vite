@@ -1,6 +1,7 @@
 import React, { FormEvent, useCallback, useEffect, useState } from "react";
 import { MapboxGeoJSONFeature } from "react-map-gl";
 import * as OSM from "osm-api";
+import type { Feature } from "geojson";
 import { openReverseGeocoder } from "@geolonia/open-reverse-geocoder";
 import { LoginButton } from "../Header/LoggedInButton";
 import { CoordinatesTextView } from "../Feature/CoordinatesTextView";
@@ -66,7 +67,9 @@ export const AddressEditor: React.VFC<{
   const { detectCountry } = useCountry();
 
   const center = JSON.parse(feature.properties?.center);
-  const [countryCode, setCountryCode] = useState();
+  const [countryFeature, setCountryFeature] = useState<Feature | undefined>(
+    undefined
+  );
   const [editingFeature, setEditingFeature] = useState(feature);
 
   const [submitting, setSubmitting] = useState(false);
@@ -79,7 +82,7 @@ export const AddressEditor: React.VFC<{
   useEffect(() => {
     (async () => {
       const country = await detectCountry(center[0], center[1]);
-      setCountryCode(country.properties["ISO_A2"]);
+      setCountryFeature(country);
     })();
   }, [feature]);
 
@@ -155,7 +158,7 @@ export const AddressEditor: React.VFC<{
             </a>
             {" | "}
             <CoordinatesTextView feature={editingFeature} />
-            {countryCode === "JP" && (
+            {countryFeature?.properties?.["ISO_A3"] === "JPN" && (
               <span>
                 {" | "}
                 Address:{" "}
@@ -165,7 +168,7 @@ export const AddressEditor: React.VFC<{
               </span>
             )}
           </div>
-          {countryCode === "JP" ? (
+          {countryFeature?.properties?.["ISO_A3"] === "JPN" ? (
             <form onSubmit={onPostAddress}>
               <div className="flex flex-wrap">
                 <AddressInputField
@@ -235,7 +238,24 @@ export const AddressEditor: React.VFC<{
             </form>
           ) : (
             <div className="flex flex-wrap">
-              <div className="w-full py-2 px-2 mb-6 md:mb-0">
+              <div className="w-full mb-6 md:mb-0">
+                <div className="py-2">
+                  <p>
+                    Sorry, Address editor in this country{" "}
+                    {countryFeature?.properties?.["ABBREV"]} (ISO code:
+                    {countryFeature?.properties?.["ISO_A3"]}) does not support
+                    yet.
+                  </p>
+                  <p>
+                    <a
+                      href="https://github.com/yuiseki/osm-address-editor-vite"
+                      target="_blank"
+                      className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+                    >
+                      Pull requests are welcome!
+                    </a>
+                  </p>
+                </div>
                 <button
                   type="button"
                   onClick={onCancel}
