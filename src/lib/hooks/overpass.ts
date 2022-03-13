@@ -64,7 +64,7 @@ export const useOverpass = () => {
     const geojson = osmtogeojson(json) as FeatureCollection<Polygon>;
     console.log("overpass osmtogeojson raw: ", geojson);
 
-    // convert for mapbox
+    // convert for display and editing
     for await (const feature of geojson.features) {
       if (!feature.properties) {
         continue;
@@ -73,6 +73,7 @@ export const useOverpass = () => {
       // add id of feature as number
       feature.id = feature.properties.id.split("/")[1];
 
+      // keep tags and nodes of original element
       const element = json.elements.filter((e: any) => {
         if (!feature.id) {
           return false;
@@ -95,7 +96,7 @@ export const useOverpass = () => {
       }
 
       // add icon href of last editor
-      // using localStorage cache
+      // using localStorage as cache
       const uid = feature.properties.uid;
       if (uid) {
         let iconHref = localStorage.getItem(uid + "-icon");

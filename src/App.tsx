@@ -352,6 +352,23 @@ function App() {
           style={{ width: "100%", height: "100%" }}
           mapStyle={RASTER_TILE_STYLE}
         >
+          <Source id="buildings-source" type="geojson" data={geojson}>
+            <Layer {...layerStyleFill} />
+          </Source>
+          <NavigationControl
+            position="top-left"
+            style={{ marginTop: "55px" }}
+            showCompass={false}
+          />
+          <GeolocateControl
+            ref={geolocateControlRef}
+            position="top-left"
+            showUserLocation={true}
+            showAccuracyCircle={false}
+            trackUserLocation={false}
+            positionOptions={{ enableHighAccuracy: true }}
+            fitBoundsOptions={{ zoom: 17 }}
+          />
           <div
             className="fa-2xl"
             style={{
@@ -372,9 +389,6 @@ function App() {
               <FontAwesomeIcon size="2x" icon={faXmark} />
             )}
           </div>
-          <Source id="buildings-source" type="geojson" data={geojson}>
-            <Layer {...layerStyleFill} />
-          </Source>
           {pins}
           {hoverInfo && (
             <div
@@ -394,20 +408,6 @@ function App() {
               <AddressTextView feature={hoverInfo.feature} />
             </div>
           )}
-          <NavigationControl
-            position="top-left"
-            style={{ marginTop: "55px" }}
-            showCompass={false}
-          />
-          <GeolocateControl
-            ref={geolocateControlRef}
-            position="top-left"
-            showUserLocation={true}
-            showAccuracyCircle={false}
-            trackUserLocation={false}
-            positionOptions={{ enableHighAccuracy: true }}
-            fitBoundsOptions={{ zoom: 17 }}
-          />
         </Map>
       </div>
     </div>
