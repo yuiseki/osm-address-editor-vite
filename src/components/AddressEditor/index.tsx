@@ -199,13 +199,15 @@ export const AddressEditor: React.VFC<{
                   >
                     Cancel
                   </button>
-                  <button
-                    type="button"
-                    onClick={onReverseGeocode}
-                    className="button rounded mr-4 py-2 px-3 bg-green-300 text-gray-800 hover:text-white"
-                  >
-                    Load address from coordinates
-                  </button>
+                  {countryFeature?.properties?.["ISO_A3"] === "JPN" && (
+                    <button
+                      type="button"
+                      onClick={onReverseGeocode}
+                      className="button rounded mr-4 py-2 px-3 bg-green-300 text-gray-800 hover:text-white"
+                    >
+                      Load address from coordinates
+                    </button>
+                  )}
                   <button
                     disabled={!loggedIn || submitting}
                     className="button rounded mr-2 py-2 px-3 bg-blue-300 text-gray-800 disabled:bg-blue-100 disabled:text-gray-400 hover:text-white"
