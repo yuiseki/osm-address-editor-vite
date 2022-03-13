@@ -230,7 +230,7 @@ export const AddressEditor: React.VFC<{
                 <div className="py-2">
                   <p>
                     Sorry, Address editor in this country{" "}
-                    {countryFeature?.properties?.["ABBREV"]} (ISO code:
+                    {countryFeature?.properties?.["NAME"]} (ISO code:
                     {countryFeature?.properties?.["ISO_A3"]}) does not support
                     yet.
                   </p>
