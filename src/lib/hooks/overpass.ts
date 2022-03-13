@@ -19,7 +19,15 @@ export const useOverpass = () => {
       return emptyGeoJSON;
     }
     let around = 300;
-    around = zoom <= 17 ? 300 : zoom <= 19 ? 100 : 50;
+    if (zoom > 17) {
+      around = 200;
+    }
+    if (zoom > 18) {
+      around = 100;
+    }
+    if (zoom > 19) {
+      around = 50;
+    }
 
     if (loadingOverpass) {
       return emptyGeoJSON;
