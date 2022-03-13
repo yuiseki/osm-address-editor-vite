@@ -13,6 +13,7 @@ import Map, {
   MapLayerMouseEvent,
   MapRef,
   Marker,
+  NavigationControl,
   Source,
   ViewState,
   ViewStateChangeEvent,
@@ -393,10 +394,14 @@ function App() {
               <AddressTextView feature={hoverInfo.feature} />
             </div>
           )}
+          <NavigationControl
+            position="top-left"
+            style={{ marginTop: "55px" }}
+            showCompass={false}
+          />
           <GeolocateControl
             ref={geolocateControlRef}
             position="top-left"
-            style={{ marginTop: "55px" }}
             showUserLocation={true}
             showAccuracyCircle={false}
             trackUserLocation={false}
