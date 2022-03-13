@@ -1,18 +1,25 @@
-import React, { FormEvent, useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { MapboxGeoJSONFeature } from "react-map-gl";
 import * as OSM from "osm-api";
+import { OsmChange, OsmWay } from "osm-api";
 import type { Feature } from "geojson";
+
 import { openReverseGeocoder } from "@geolonia/open-reverse-geocoder";
+
 import { LoginButton } from "../Header/LoggedInButton";
 import { CoordinatesTextView } from "../Feature/CoordinatesTextView";
 import { AddressTextView } from "../Feature/AddressTextView";
+
 import {
-  AddressDetailFieldList,
-  AddressMainFieldList,
-  AddressPostcodeField,
-} from "../Feature/fields";
-import { OsmChange, OsmWay } from "osm-api";
+  AddressFieldsByCountry,
+  AddressFieldType,
+} from "../Feature/address/fields";
 import { useCountry } from "../../lib/hooks/country";
+import { AddressInputField } from "./AddressInputField";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+
+const EDITABLE_COUNTRY = ["JPN", "CHN"];
 
 const DEFAULT_TAGS = {
   attribution: "https://yuiseki.github.io/osm-address-editor-vite/",
@@ -22,58 +29,26 @@ const DEFAULT_TAGS = {
   comment: "Update address",
 };
 
-const AddressInputField: React.VFC<{
-  feature: MapboxGeoJSONFeature;
-  fieldName: string;
-  label?: string;
-  placeholder?: string;
-}> = ({ feature, fieldName, label, placeholder }) => {
-  const [value, setValue] = useState(feature.properties?.[fieldName]);
-
-  useEffect(() => {
-    setValue(feature.properties?.[fieldName]);
-  }, [feature]);
-
-  const onChange = useCallback((e: FormEvent<HTMLInputElement>) => {
-    setValue(e.currentTarget.value);
-  }, []);
-
-  return (
-    <div className="w-full md:w-1/6 py-1 px-2 mb-6 md:mb-0">
-      <label
-        className="block tracking-wide text-gray-700 text-xs font-bold mb-2"
-        htmlFor={fieldName}
-      >
-        {label ? label : fieldName}
-      </label>
-      <input
-        className="appearance-none block w-full leading-tight rounded py-2 px-1 border border-gray-300 bg-gray-100 text-black placeholder-gray-500 placeholder-opacity-50 focus:outline-none focus:bg-white focus:border-gray-500"
-        id={fieldName}
-        name={fieldName}
-        type="text"
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-      />
-    </div>
-  );
-};
-
 export const AddressEditor: React.VFC<{
   feature: MapboxGeoJSONFeature;
   onCancel: () => void;
   onSubmit: () => void;
 }> = ({ feature, onCancel, onSubmit }) => {
-  const { detectCountry } = useCountry();
+  const { detectCountry, loadingCountry } = useCountry();
 
   const center = JSON.parse(feature.properties?.center);
   const [countryFeature, setCountryFeature] = useState<Feature | undefined>(
     undefined
   );
+
+  const [postcodeField, setPostcodeField] = useState<AddressFieldType>();
+  const [mainFields, setMainFields] = useState<AddressFieldType[]>();
+  const [detailFields, setDetailFields] = useState<AddressFieldType[]>();
+
   const [editingFeature, setEditingFeature] = useState(feature);
 
-  const [submitting, setSubmitting] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     setLoggedIn(OSM.isLoggedIn());
@@ -83,6 +58,15 @@ export const AddressEditor: React.VFC<{
     (async () => {
       const country = await detectCountry(center[0], center[1]);
       setCountryFeature(country);
+      if (
+        country?.properties?.["ISO_A3"] &&
+        AddressFieldsByCountry[country.properties["ISO_A3"]]
+      ) {
+        const fields = AddressFieldsByCountry[country.properties["ISO_A3"]];
+        setPostcodeField(fields.postcodeField);
+        setMainFields(fields.mainFields);
+        setDetailFields(fields.detailFields);
+      }
     })();
   }, [feature]);
 
@@ -141,43 +125,47 @@ export const AddressEditor: React.VFC<{
     [feature]
   );
 
+  if (!editingFeature.properties) {
+    return null;
+  }
+
   return (
     <div>
-      {editingFeature.properties && (
+      <div>
+        OSM:{" "}
+        <a
+          className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+          href={"https://www.openstreetmap.org/" + editingFeature.properties.id}
+          target="_blank"
+        >
+          {editingFeature.properties.id}
+        </a>
+        {" | "}
+        <CoordinatesTextView feature={editingFeature} />
+        <span>
+          {" | "}
+          Address:{" "}
+          <span className="underline">
+            <AddressTextView feature={editingFeature} />
+          </span>
+        </span>
+      </div>
+      {loadingCountry ? (
+        <FontAwesomeIcon icon={faSpinner} spin={true} />
+      ) : (
         <>
-          <div>
-            OSM:{" "}
-            <a
-              className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
-              href={
-                "https://www.openstreetmap.org/" + editingFeature.properties.id
-              }
-              target="_blank"
-            >
-              {editingFeature.properties.id}
-            </a>
-            {" | "}
-            <CoordinatesTextView feature={editingFeature} />
-            {countryFeature?.properties?.["ISO_A3"] === "JPN" && (
-              <span>
-                {" | "}
-                Address:{" "}
-                <span className="underline">
-                  <AddressTextView feature={editingFeature} />
-                </span>
-              </span>
-            )}
-          </div>
-          {countryFeature?.properties?.["ISO_A3"] === "JPN" ? (
+          {postcodeField && mainFields && detailFields ? (
             <form onSubmit={onPostAddress}>
               <div className="flex flex-wrap">
                 <AddressInputField
                   feature={editingFeature}
-                  fieldName={AddressPostcodeField.key}
-                  label={AddressPostcodeField.displayName}
-                  placeholder={AddressPostcodeField.placeholder}
+                  fieldName={postcodeField.key}
+                  label={postcodeField.displayName}
+                  placeholder={postcodeField.placeholder}
                 />
-                {AddressMainFieldList.map((field) => {
+              </div>
+              <div className="flex flex-wrap">
+                {mainFields.map((field) => {
                   return (
                     <AddressInputField
                       key={field.key}
@@ -190,7 +178,7 @@ export const AddressEditor: React.VFC<{
                 })}
               </div>
               <div className="flex flex-wrap">
-                {AddressDetailFieldList.map((field) => {
+                {detailFields.map((field) => {
                   return (
                     <AddressInputField
                       key={field.key}
