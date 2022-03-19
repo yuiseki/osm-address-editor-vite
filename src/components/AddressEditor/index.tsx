@@ -8,16 +8,18 @@ import { openReverseGeocoder } from "@geolonia/open-reverse-geocoder";
 
 import { LoginButton } from "../Header/LoggedInButton";
 import { CoordinatesTextView } from "../Feature/CoordinatesTextView";
-import { AddressTextView } from "../Feature/AddressTextView";
+import { AddressPlainTextView } from "../Feature/AddressPlainTextView";
 
 import {
   AddressFieldsByCountry,
   AddressFieldType,
+  AddressStructureType,
 } from "../Feature/address/fields";
 import { useCountry } from "../../lib/hooks/country";
 import { AddressInputField } from "./AddressInputField";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { AddressTextViewByCountry } from "../Feature/AddressTextViewbyCountry";
 
 const EDITABLE_COUNTRY = ["JPN", "CHN"];
 
@@ -41,9 +43,8 @@ export const AddressEditor: React.VFC<{
     undefined
   );
 
-  const [postcodeField, setPostcodeField] = useState<AddressFieldType>();
-  const [mainFields, setMainFields] = useState<AddressFieldType[]>();
-  const [detailFields, setDetailFields] = useState<AddressFieldType[]>();
+  const [addressStructure, setAddressStructure] =
+    useState<AddressStructureType>();
 
   const [editingFeature, setEditingFeature] = useState(feature);
 
@@ -63,9 +64,7 @@ export const AddressEditor: React.VFC<{
         AddressFieldsByCountry[country.properties["ISO_A3"]]
       ) {
         const fields = AddressFieldsByCountry[country.properties["ISO_A3"]];
-        setPostcodeField(fields.postcodeField);
-        setMainFields(fields.mainFields);
-        setDetailFields(fields.detailFields);
+        setAddressStructure(fields);
       }
     })();
   }, [feature]);
@@ -142,30 +141,33 @@ export const AddressEditor: React.VFC<{
         </a>
         {" | "}
         <CoordinatesTextView feature={editingFeature} />
-        <span>
-          {" | "}
-          Address:{" "}
-          <span className="underline">
-            <AddressTextView feature={editingFeature} />
+        {addressStructure && (
+          <span>
+            {" | "}
+            Address:{" "}
+            <AddressTextViewByCountry
+              feature={editingFeature}
+              fields={addressStructure}
+            />
           </span>
-        </span>
+        )}
       </div>
       {loadingCountry ? (
         <FontAwesomeIcon icon={faSpinner} spin={true} />
       ) : (
         <>
-          {postcodeField && mainFields && detailFields ? (
+          {addressStructure ? (
             <form onSubmit={onPostAddress}>
               <div className="flex flex-wrap">
                 <AddressInputField
                   feature={editingFeature}
-                  fieldName={postcodeField.key}
-                  label={postcodeField.displayName}
-                  placeholder={postcodeField.placeholder}
+                  fieldName={addressStructure.postcodeField.key}
+                  label={addressStructure.postcodeField.displayName}
+                  placeholder={addressStructure.postcodeField.placeholder}
                 />
               </div>
               <div className="flex flex-wrap">
-                {mainFields.map((field) => {
+                {addressStructure.mainFields.map((field) => {
                   return (
                     <AddressInputField
                       key={field.key}
@@ -178,7 +180,7 @@ export const AddressEditor: React.VFC<{
                 })}
               </div>
               <div className="flex flex-wrap">
-                {detailFields.map((field) => {
+                {addressStructure.detailFields.map((field) => {
                   return (
                     <AddressInputField
                       key={field.key}

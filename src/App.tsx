@@ -37,7 +37,9 @@ import { useOverpass } from "./lib/hooks/overpass";
 import { AddressEditor } from "./components/AddressEditor";
 import { useDebounce } from "./lib/hooks/debounce";
 import { CoordinatesTextView } from "./components/Feature/CoordinatesTextView";
-import { AddressTextView } from "./components/Feature/AddressTextView";
+import { AddressPlainTextView } from "./components/Feature/AddressPlainTextView";
+import { LastEditUserIconView } from "./components/Feature/LastEditUserIconView";
+import { LastEditUserTextView } from "./components/Feature/LastEditUserTextView";
 
 const RASTER_TILE_STYLE: mapboxgl.Style = {
   version: 8,
@@ -268,21 +270,7 @@ function App() {
             latitude={feature.properties.center[1]}
             anchor="center"
           >
-            {feature.properties.userIconHref.length > 0 ? (
-              <img
-                src={feature.properties.userIconHref}
-                style={{
-                  width: size + "px",
-                  height: size + "px",
-                }}
-              />
-            ) : (
-              <span
-                dangerouslySetInnerHTML={{
-                  __html: toSvg(feature.properties.user || "noname", size),
-                }}
-              />
-            )}
+            <LastEditUserIconView feature={feature} size={size} />
           </Marker>
         );
       }
@@ -404,7 +392,8 @@ function App() {
             >
               <CoordinatesTextView feature={hoverInfo.feature} />
               <br />
-              <AddressTextView feature={hoverInfo.feature} />
+              <LastEditUserTextView feature={hoverInfo.feature} />
+              <AddressPlainTextView feature={hoverInfo.feature} />
             </div>
           )}
         </Map>

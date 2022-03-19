@@ -5,12 +5,14 @@ export type AddressFieldType = {
   prefix?: string;
 };
 
+export type AddressStructureType = {
+  postcodeField: AddressFieldType;
+  mainFields: AddressFieldType[];
+  detailFields: AddressFieldType[];
+};
+
 export const AddressFieldsByCountry: {
-  [key: string]: {
-    postcodeField: AddressFieldType;
-    mainFields: AddressFieldType[];
-    detailFields: AddressFieldType[];
-  };
+  [key: string]: AddressStructureType;
 } = {
   JPN: {
     postcodeField: {
