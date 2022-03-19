@@ -20,6 +20,6 @@ labels: bug, waiting/assign, waiting/triage
 
 1. ...
 
-## Links
+## Related Links
 
 - ...
