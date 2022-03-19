@@ -28,7 +28,6 @@ import {
   faSpinner,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
-import { toSvg } from "jdenticon";
 
 // components
 import { Header } from "./components/Header";
@@ -289,7 +288,7 @@ function App() {
           left: 10,
         }}
       >
-        <TweetButton />
+        <TweetButton viewState={viewState} />
       </div>
       <div
         style={{
