@@ -121,7 +121,7 @@ function App() {
   const mapRef = useRef<MapRef>(null);
 
   const [viewState, setViewState] = useState<ViewState>();
-  const debouncedViewState = useDebounce<ViewState>(viewState, 1000);
+  const debouncedViewState = useDebounce<ViewState>(viewState, 2500);
 
   const geolocateControlRef = useRef<GeolocateControlRef>(null);
 
