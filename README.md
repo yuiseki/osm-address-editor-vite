@@ -45,7 +45,7 @@ This project uses following apis and npm packages:
     - Main entrypoint of this project
   - `components/`
     - Separable, Reusable UI components
-    - `Feature/address/fields.ts`
+    - `Feature/address/countries.ts`
       - Most important code to localize fields of form of to edit address in many country
   - `lib/`
     - Separable, Reusable libraries
