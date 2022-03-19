@@ -24,8 +24,7 @@ import { AddressTextViewByCountry } from "../Feature/AddressTextViewbyCountry";
 const EDITABLE_COUNTRY = ["JPN", "CHN"];
 
 const DEFAULT_TAGS = {
-  attribution: "https://yuiseki.github.io/osm-address-editor-vite/",
-  host: "https://yuiseki.github.io/osm-address-editor-vite/",
+  source: "https://yuiseki.github.io/osm-address-editor-vite/",
   created_by: "osm-address-editor-vite",
   locale: navigator.language,
   comment: "Update address",
