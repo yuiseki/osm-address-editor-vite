@@ -11,12 +11,8 @@ export const CommentInputField: React.VFC<{
   }, [defaultValue]);
 
   const onChange = useCallback((e: FormEvent<HTMLInputElement>) => {
-    console.log(e.currentTarget.value);
     setValue(e.currentTarget.value);
   }, []);
-
-  //console.log(defaultValue);
-  //console.log(value);
 
   return (
     <div className="w-full md:w-1/3 py-1 px-2 mb-6 md:mb-0">
