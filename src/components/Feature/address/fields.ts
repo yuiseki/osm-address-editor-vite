@@ -9,12 +9,14 @@ export type AddressStructureType = {
   postcodeField: AddressFieldType;
   mainFields: AddressFieldType[];
   detailFields: AddressFieldType[];
+  defaultComment: string;
 };
 
 export const AddressFieldsByCountry: {
   [key: string]: AddressStructureType;
 } = {
   JPN: {
+    defaultComment: "住所を更新",
     postcodeField: {
       key: "addr:postcode",
       displayName: "郵便番号",
@@ -57,6 +59,7 @@ export const AddressFieldsByCountry: {
     ],
   },
   CHN: {
+    defaultComment: "更新地址",
     postcodeField: {
       key: "addr:postcode",
       displayName: "Postcode",

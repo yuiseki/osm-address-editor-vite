@@ -18,12 +18,13 @@ import { AddressInputField } from "./AddressInputField";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { AddressTextViewByCountry } from "../Feature/AddressTextViewbyCountry";
+import { CommentInputField } from "./CommentInputField";
 
 const DEFAULT_TAGS = {
-  source: "https://yuiseki.github.io/osm-address-editor-vite/",
+  host: "https://yuiseki.github.io/osm-address-editor-vite/",
   created_by: "osm-address-editor-vite",
   locale: navigator.language,
-  comment: "Update address",
+  comment: "Update Address",
 };
 
 export const AddressEditor: React.VFC<{
@@ -47,6 +48,10 @@ export const AddressEditor: React.VFC<{
   const [anyChange, setAnyChange] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  const [changesetCommentSuggest, setChangesetCommentSuggest] = useState<
+    string | undefined
+  >();
+
   useEffect(() => {
     setLoggedIn(OSM.isLoggedIn());
   }, []);
@@ -61,6 +66,9 @@ export const AddressEditor: React.VFC<{
       ) {
         const fields = AddressFieldsByCountry[country.properties["ISO_A3"]];
         setAddressStructure(fields);
+        const newCommentSuggest =
+          fields.defaultComment + " " + feature.properties?.id;
+        setChangesetCommentSuggest(newCommentSuggest);
       }
     })();
   }, [feature]);
@@ -93,7 +101,11 @@ export const AddressEditor: React.VFC<{
       const formData = new FormData(e.currentTarget);
       const tags = JSON.parse(feature.properties?.tags);
       formData.forEach((value, key) => {
-        if (typeof value === "string" && value.length > 0) {
+        if (
+          typeof value === "string" &&
+          value.length > 0 &&
+          key !== "comment"
+        ) {
           tags[key] = value;
         }
       });
@@ -110,6 +122,10 @@ export const AddressEditor: React.VFC<{
         modify: [changeSet as OsmWay],
         delete: [],
       };
+      const comment = formData.get("comment");
+      if (comment) {
+        DEFAULT_TAGS["comment"] = comment.toString();
+      }
       await OSM.uploadChangeset(DEFAULT_TAGS, changes);
       setSubmitting(false);
       window.alert(
@@ -194,6 +210,9 @@ export const AddressEditor: React.VFC<{
                     />
                   );
                 })}
+              </div>
+              <div className="flex flex-wrap">
+                <CommentInputField defaultValue={changesetCommentSuggest} />
               </div>
               <div className="flex flex-wrap">
                 <div className="w-full py-2 px-2 mb-6 md:mb-0">

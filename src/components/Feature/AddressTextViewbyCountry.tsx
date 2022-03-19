@@ -8,8 +8,6 @@ export const AddressTextViewByCountry: React.VFC<{
   if (!feature.properties) {
     return null;
   }
-  console.log(feature.properties);
-  console.log(fields);
   return (
     <>
       {fields.postcodeField && (

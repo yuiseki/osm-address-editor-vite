@@ -6,5 +6,5 @@ export const LastEditUserTextView: React.VFC<{
   if (!feature.properties?.uid) {
     return null;
   }
-  return <span>Last edited by: {feature.properties.uid}</span>;
+  return <span>Last edited by: {feature.properties.user}</span>;
 };
