@@ -1,6 +1,6 @@
 ---
-name: Feature request or improvement suggestion
-about: If you have idea or want to add a new feature or suggest more improvement, please use this template
+name: Feature request
+about: If you have idea or want to add a new feature, please use this template
 labels: feature, waiting/assign, waiting/triage
 ---
 
