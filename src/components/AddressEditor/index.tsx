@@ -8,11 +8,9 @@ import { openReverseGeocoder } from "@geolonia/open-reverse-geocoder";
 
 import { LoginButton } from "../Header/LoggedInButton";
 import { CoordinatesTextView } from "../Feature/CoordinatesTextView";
-import { AddressPlainTextView } from "../Feature/AddressPlainTextView";
 
 import {
   AddressFieldsByCountry,
-  AddressFieldType,
   AddressStructureType,
 } from "../Feature/address/fields";
 import { useCountry } from "../../lib/hooks/country";
@@ -20,8 +18,6 @@ import { AddressInputField } from "./AddressInputField";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { AddressTextViewByCountry } from "../Feature/AddressTextViewbyCountry";
-
-const EDITABLE_COUNTRY = ["JPN", "CHN"];
 
 const DEFAULT_TAGS = {
   source: "https://yuiseki.github.io/osm-address-editor-vite/",
@@ -48,6 +44,7 @@ export const AddressEditor: React.VFC<{
   const [editingFeature, setEditingFeature] = useState(feature);
 
   const [loggedIn, setLoggedIn] = useState(false);
+  const [anyChange, setAnyChange] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -123,6 +120,10 @@ export const AddressEditor: React.VFC<{
     [feature]
   );
 
+  const onChange = useCallback(() => {
+    setAnyChange(true);
+  }, []);
+
   if (!editingFeature.properties) {
     return null;
   }
@@ -163,6 +164,7 @@ export const AddressEditor: React.VFC<{
                   fieldName={addressStructure.postcodeField.key}
                   label={addressStructure.postcodeField.displayName}
                   placeholder={addressStructure.postcodeField.placeholder}
+                  onChange={onChange}
                 />
               </div>
               <div className="flex flex-wrap">
@@ -174,6 +176,7 @@ export const AddressEditor: React.VFC<{
                       fieldName={field.key}
                       label={field.displayName}
                       placeholder={field.placeholder}
+                      onChange={onChange}
                     />
                   );
                 })}
@@ -187,6 +190,7 @@ export const AddressEditor: React.VFC<{
                       fieldName={field.key}
                       label={field.displayName}
                       placeholder={field.placeholder}
+                      onChange={onChange}
                     />
                   );
                 })}
@@ -210,7 +214,7 @@ export const AddressEditor: React.VFC<{
                     </button>
                   )}
                   <button
-                    disabled={!loggedIn || submitting}
+                    disabled={!loggedIn || submitting || !anyChange}
                     className="button rounded mr-2 py-2 px-3 bg-blue-300 text-gray-800 disabled:bg-blue-100 disabled:text-gray-400 hover:text-white"
                   >
                     Submit to OpenStreetMap!

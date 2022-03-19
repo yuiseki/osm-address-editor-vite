@@ -6,7 +6,8 @@ export const AddressInputField: React.VFC<{
   fieldName: string;
   label?: string;
   placeholder?: string;
-}> = ({ feature, fieldName, label, placeholder }) => {
+  onChange?: (e: FormEvent<HTMLInputElement>) => void;
+}> = ({ feature, fieldName, label, placeholder, onChange: _onChange }) => {
   const [value, setValue] = useState(feature.properties?.[fieldName]);
 
   useEffect(() => {
@@ -15,6 +16,9 @@ export const AddressInputField: React.VFC<{
 
   const onChange = useCallback((e: FormEvent<HTMLInputElement>) => {
     setValue(e.currentTarget.value);
+    if (_onChange) {
+      _onChange(e);
+    }
   }, []);
 
   return (
