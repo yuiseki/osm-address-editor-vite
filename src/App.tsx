@@ -267,19 +267,22 @@ function App() {
     return geojson.features.map((feature, i) => {
       if (!feature.properties) {
         return null;
-      } else {
-        return (
-          <Marker
-            key={`marker-${i}`}
-            style={{ cursor: "pointer" }}
-            longitude={feature.properties.center[0]}
-            latitude={feature.properties.center[1]}
-            anchor="center"
-          >
-            <LastEditUserIconView feature={feature} size={size} />
-          </Marker>
-        );
       }
+      if (!feature.properties.center) {
+        return null;
+      }
+
+      return (
+        <Marker
+          key={`marker-${i}`}
+          style={{ cursor: "pointer" }}
+          longitude={feature.properties.center[0]}
+          latitude={feature.properties.center[1]}
+          anchor="center"
+        >
+          <LastEditUserIconView feature={feature} size={size} />
+        </Marker>
+      );
     });
   }, [geojson, viewState]);
 
