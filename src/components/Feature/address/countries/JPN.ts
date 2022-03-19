@@ -15,8 +15,13 @@ export const AddressFieldsJPN: AddressStructureType = {
     },
     {
       key: "addr:city",
-      displayName: "市区町村",
+      displayName: "市町村と東京23区",
       placeholder: "千代田区",
+    },
+    {
+      key: "addr:suburb",
+      displayName: "政令指定都市の区",
+      placeholder: "",
     },
     {
       key: "addr:quarter",
