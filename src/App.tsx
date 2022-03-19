@@ -82,7 +82,6 @@ const layerStyleFill: LayerProps = {
         ["boolean", ["has", "addr:province"], false],
         ["boolean", ["has", "addr:city"], false],
         ["boolean", ["has", "addr:quarter"], false],
-        ["boolean", ["has", "addr:neighbourhood"], false],
         ["boolean", ["has", "addr:block_number"], false],
         ["boolean", ["has", "addr:housenumber"], false],
       ],
