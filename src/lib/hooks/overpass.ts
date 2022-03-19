@@ -3,7 +3,7 @@ import osmtogeojson from "osmtogeojson";
 import * as OSM from "osm-api";
 import * as turf from "@turf/turf";
 
-import type { FeatureCollection, Polygon } from "geojson";
+import type { FeatureCollection, Point, Polygon } from "geojson";
 
 const emptyGeoJSON = {
   type: "FeatureCollection",
@@ -40,7 +40,7 @@ export const useOverpass = () => {
     // build query
     let query = "[out:json]";
     query += "[timeout:25];\n";
-    query += 'way["building"]';
+    query += 'nwr["building"]';
     query += `(around:${around},${latitude},${longitude});\n`;
     query += "out meta geom;";
     console.log(query);
@@ -61,7 +61,7 @@ export const useOverpass = () => {
     console.log("overpass json elements: ", json.elements);
 
     // convert raw json to geojson
-    const geojson = osmtogeojson(json) as FeatureCollection<Polygon>;
+    const geojson = osmtogeojson(json) as FeatureCollection<Polygon | Point>;
     console.log("overpass osmtogeojson raw: ", geojson);
 
     // convert for display and editing
@@ -93,6 +93,10 @@ export const useOverpass = () => {
         const poly = turf.polygon(feature.geometry.coordinates);
         var center = turf.centroid(poly);
         feature.properties.center = center.geometry.coordinates;
+      }
+
+      if (feature.geometry.type === "Point") {
+        feature.properties.center = feature.geometry.coordinates;
       }
 
       // add icon href of last editor
