@@ -1,6 +1,7 @@
 import { AddressFieldsCHN } from "./countries/CHN";
 import { AddressFieldsDEU } from "./countries/DEU";
 import { AddressFieldsJPN } from "./countries/JPN";
+import { AddressFieldsKOR } from "./countries/KOR";
 
 export type AddressFieldType = {
   key: string;
@@ -22,4 +23,5 @@ export const AddressFieldsByCountry: {
   JPN: AddressFieldsJPN,
   CHN: AddressFieldsCHN,
   DEU: AddressFieldsDEU,
+  KOR: AddressFieldsKOR,
 };

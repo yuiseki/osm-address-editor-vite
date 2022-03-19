@@ -99,11 +99,35 @@ const layerStyleFill: LayerProps = {
       "blue",
       // for DEU
       [
-        "any",
+        "all",
+        ["boolean", ["has", "addr:postcode"], false],
+        ["boolean", ["has", "addr:province"], false],
+        ["boolean", ["has", "addr:district"], false],
+        ["boolean", ["has", "addr:street"], false],
+        ["boolean", ["has", "addr:housenumber"], false],
+      ],
+      "blue",
+      // for KOR
+      [
+        "all",
         ["boolean", ["has", "addr:postcode"], false],
         ["boolean", ["has", "addr:city"], false],
-        ["boolean", ["has", "addr:suburb"], false],
         ["boolean", ["has", "addr:street"], false],
+        ["boolean", ["has", "addr:housenumber"], false],
+      ],
+      "blue",
+      // for all country
+      [
+        "any",
+        ["boolean", ["has", "addr:postcode"], false],
+        ["boolean", ["has", "addr:province"], false],
+        ["boolean", ["has", "addr:city"], false],
+        ["boolean", ["has", "addr:district"], false],
+        ["boolean", ["has", "addr:suburb"], false],
+        ["boolean", ["has", "addr:quarter"], false],
+        ["boolean", ["has", "addr:street"], false],
+        ["boolean", ["has", "addr:neighbourhood"], false],
+        ["boolean", ["has", "addr:block_number"], false],
         ["boolean", ["has", "addr:housenumber"], false],
       ],
       "yellow",
