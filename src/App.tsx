@@ -75,31 +75,35 @@ const layerStyleFill: LayerProps = {
       "case",
       ["boolean", ["feature-state", "select"], false],
       "green",
+      // for JPN
       [
         "all",
         ["boolean", ["has", "addr:postcode"], false],
         ["boolean", ["has", "addr:province"], false],
         ["boolean", ["has", "addr:city"], false],
-        ["boolean", ["has", "addr:district"], false],
-        ["boolean", ["has", "addr:street"], false],
-        ["boolean", ["has", "addr:suburb"], false],
         ["boolean", ["has", "addr:quarter"], false],
         ["boolean", ["has", "addr:neighbourhood"], false],
         ["boolean", ["has", "addr:block_number"], false],
         ["boolean", ["has", "addr:housenumber"], false],
       ],
       "blue",
+      // for CHN
+      [
+        "all",
+        ["boolean", ["has", "addr:postcode"], false],
+        ["boolean", ["has", "addr:province"], false],
+        ["boolean", ["has", "addr:district"], false],
+        ["boolean", ["has", "addr:street"], false],
+        ["boolean", ["has", "addr:housenumber"], false],
+      ],
+      "blue",
+      // for DEU
       [
         "any",
         ["boolean", ["has", "addr:postcode"], false],
-        ["boolean", ["has", "addr:province"], false],
         ["boolean", ["has", "addr:city"], false],
-        ["boolean", ["has", "addr:district"], false],
-        ["boolean", ["has", "addr:street"], false],
         ["boolean", ["has", "addr:suburb"], false],
-        ["boolean", ["has", "addr:quarter"], false],
-        ["boolean", ["has", "addr:neighbourhood"], false],
-        ["boolean", ["has", "addr:block_number"], false],
+        ["boolean", ["has", "addr:street"], false],
         ["boolean", ["has", "addr:housenumber"], false],
       ],
       "yellow",
@@ -260,9 +264,9 @@ function App() {
   // icons
   //
   const pins = useMemo(() => {
-    let size = 20;
+    let size = 25;
     if (viewState) {
-      size = viewState.zoom < 18 ? 15 : viewState.zoom < 19 ? 20 : 30;
+      size = viewState.zoom < 18 ? 20 : viewState.zoom < 19 ? 25 : 35;
     }
     return geojson.features.map((feature, i) => {
       if (!feature.properties) {
