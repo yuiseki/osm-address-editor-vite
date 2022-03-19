@@ -12,7 +12,7 @@ import { CoordinatesTextView } from "../Feature/CoordinatesTextView";
 import {
   AddressFieldsByCountry,
   AddressStructureType,
-} from "../Feature/address/fields";
+} from "../Feature/address";
 import { useCountry } from "../../lib/hooks/country";
 import { AddressInputField } from "./AddressInputField";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
