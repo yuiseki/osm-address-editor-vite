@@ -40,6 +40,7 @@ import { CoordinatesTextView } from "./components/Feature/CoordinatesTextView";
 import { AddressPlainTextView } from "./components/Feature/AddressPlainTextView";
 import { LastEditUserIconView } from "./components/Feature/LastEditUserIconView";
 import { LastEditUserTextView } from "./components/Feature/LastEditUserTextView";
+import { TweetButton } from "./components/TweetButton";
 
 const RASTER_TILE_STYLE: mapboxgl.Style = {
   version: 8,
@@ -280,6 +281,16 @@ function App() {
   return (
     <div>
       <Header />
+      <div
+        style={{
+          zIndex: 300,
+          position: "absolute",
+          bottom: 10,
+          left: 10,
+        }}
+      >
+        <TweetButton />
+      </div>
       <div
         style={{
           zIndex: 1,
