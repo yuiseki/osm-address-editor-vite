@@ -14,14 +14,22 @@ export const AddressTextViewByCountry: React.VFC<{
     <>
       {fields.postcodeField && (
         <span>{feature.properties[fields.postcodeField.key]}</span>
-      )}
+      )}{" "}
       {fields.mainFields &&
         fields.mainFields.map((field) => {
-          return <span>{feature.properties?.[field.key]}</span>;
+          return (
+            <>
+              <span>{feature.properties?.[field.key]}</span>{" "}
+            </>
+          );
         })}
       {fields.detailFields &&
         fields.detailFields.map((field) => {
-          return <span>{feature.properties?.[field.key]}</span>;
+          return (
+            <>
+              <span>{feature.properties?.[field.key]}</span>{" "}
+            </>
+          );
         })}
     </>
   );
