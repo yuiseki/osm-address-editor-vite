@@ -7,7 +7,6 @@ import Map, {
   GeolocateControl,
   GeolocateControlRef,
   Layer,
-  LayerProps,
   MapboxEvent,
   MapboxGeoJSONFeature,
   MapLayerMouseEvent,
@@ -31,118 +30,20 @@ import {
 
 // components
 import { Header } from "./components/Header";
-// libs
-import { useOverpass } from "./lib/hooks/overpass";
-import { AddressEditor } from "./components/AddressEditor";
-import { useDebounce } from "./lib/hooks/debounce";
 import { CoordinatesTextView } from "./components/Feature/CoordinatesTextView";
-import { AddressPlainTextView } from "./components/Feature/AddressPlainTextView";
+import { AddressPlainTextView } from "./components/Feature/address/AddressPlainTextView";
 import { LastEditUserIconView } from "./components/Feature/LastEditUserIconView";
 import { LastEditUserTextView } from "./components/Feature/LastEditUserTextView";
 import { TweetButton } from "./components/TweetButton";
+import { AddressEditor } from "./components/AddressEditor";
 
-const RASTER_TILE_STYLE: mapboxgl.Style = {
-  version: 8,
-  sources: {
-    "raster-tiles": {
-      type: "raster",
-      tiles: [
-        "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
-      ],
-      tileSize: 256,
-      attribution: "© OpenStreetMap contributors",
-    },
-  },
-  layers: [
-    {
-      id: "osm-tiles",
-      type: "raster",
-      source: "raster-tiles",
-      minzoom: 0,
-      maxzoom: 20,
-    },
-  ],
-};
+// libs
+import { useOverpass } from "./lib/hooks/overpass";
+import { useDebounce } from "./lib/hooks/debounce";
 
-const layerStyleFill: LayerProps = {
-  id: "buildings-layer-fill",
-  type: "fill",
-  source: "buildings-source",
-  paint: {
-    "fill-color": [
-      "case",
-      ["boolean", ["feature-state", "select"], false],
-      "green",
-      // for JPN
-      [
-        "all",
-        ["boolean", ["has", "addr:postcode"], false],
-        ["boolean", ["has", "addr:province"], false],
-        ["boolean", ["has", "addr:city"], false],
-        ["boolean", ["has", "addr:quarter"], false],
-        ["boolean", ["has", "addr:block_number"], false],
-        ["boolean", ["has", "addr:housenumber"], false],
-      ],
-      "blue",
-      // for CHN
-      [
-        "all",
-        ["boolean", ["has", "addr:postcode"], false],
-        ["boolean", ["has", "addr:province"], false],
-        ["boolean", ["has", "addr:district"], false],
-        ["boolean", ["has", "addr:street"], false],
-        ["boolean", ["has", "addr:housenumber"], false],
-      ],
-      "blue",
-      // for DEU
-      [
-        "all",
-        ["boolean", ["has", "addr:postcode"], false],
-        ["boolean", ["has", "addr:province"], false],
-        ["boolean", ["has", "addr:district"], false],
-        ["boolean", ["has", "addr:street"], false],
-        ["boolean", ["has", "addr:housenumber"], false],
-      ],
-      "blue",
-      // for KOR
-      [
-        "all",
-        ["boolean", ["has", "addr:postcode"], false],
-        ["boolean", ["has", "addr:city"], false],
-        ["boolean", ["has", "addr:street"], false],
-        ["boolean", ["has", "addr:housenumber"], false],
-      ],
-      "blue",
-      // for all country
-      [
-        "any",
-        ["boolean", ["has", "addr:postcode"], false],
-        ["boolean", ["has", "addr:province"], false],
-        ["boolean", ["has", "addr:city"], false],
-        ["boolean", ["has", "addr:district"], false],
-        ["boolean", ["has", "addr:suburb"], false],
-        ["boolean", ["has", "addr:quarter"], false],
-        ["boolean", ["has", "addr:street"], false],
-        ["boolean", ["has", "addr:neighbourhood"], false],
-        ["boolean", ["has", "addr:block_number"], false],
-        ["boolean", ["has", "addr:housenumber"], false],
-      ],
-      "yellow",
-      "red",
-    ],
-    "fill-opacity": [
-      "case",
-      ["boolean", ["feature-state", "select"], false],
-      0.8,
-      ["boolean", ["feature-state", "hover"], false],
-      0.8,
-      0.4,
-    ],
-  },
-  filter: ["==", "$type", "Polygon"],
-};
+// map style
+import { OSM_RASTER_TILE_STYLE } from "./maps/OsmRasterTileStyle";
+import { BUILDINGS_FILL_STYLE } from "./maps/BuildingsFillStyle";
 
 function App() {
   const mapRef = useRef<MapRef>(null);
@@ -383,10 +284,10 @@ function App() {
           cursor={cursor}
           mapLib={maplibregl}
           style={{ width: "100%", height: "100%" }}
-          mapStyle={RASTER_TILE_STYLE}
+          mapStyle={OSM_RASTER_TILE_STYLE}
         >
           <Source id="buildings-source" type="geojson" data={geojson}>
-            <Layer {...layerStyleFill} />
+            <Layer {...BUILDINGS_FILL_STYLE} />
           </Source>
           <NavigationControl
             position="top-left"

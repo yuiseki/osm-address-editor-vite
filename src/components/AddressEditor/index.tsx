@@ -17,7 +17,7 @@ import { useCountry } from "../../lib/hooks/country";
 import { AddressInputField } from "./AddressInputField";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { AddressTextViewByCountry } from "../Feature/AddressTextViewbyCountry";
+import { AddressTextViewByCountry } from "../Feature/address/AddressTextViewbyCountry";
 import { CommentInputField } from "./CommentInputField";
 
 const DEFAULT_TAGS = {
