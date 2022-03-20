@@ -19,6 +19,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { AddressTextViewByCountry } from "../Feature/address/AddressTextViewByCountry";
 import { CommentInputField } from "./CommentInputField";
+import { useOverpass } from "../../lib/hooks/overpass";
 
 const DEFAULT_TAGS = {
   host: "https://yuiseki.github.io/osm-address-editor-vite/",
@@ -33,6 +34,7 @@ export const AddressEditor: React.VFC<{
   onSubmit: () => void;
 }> = ({ feature, onCancel, onSubmit }) => {
   const { detectCountry, loadingCountry } = useCountry();
+  const { fetchOverpassAdmin, loadingOverpassAdmin } = useOverpass();
 
   const center = JSON.parse(feature.properties?.center);
   const [countryFeature, setCountryFeature] = useState<Feature | undefined>(
@@ -48,6 +50,9 @@ export const AddressEditor: React.VFC<{
   const [anyChange, setAnyChange] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  const [addressInputSuggest, setAddressInputSuggest] = useState<
+    any | undefined
+  >();
   const [changesetCommentSuggest, setChangesetCommentSuggest] = useState<
     string | undefined
   >();
@@ -77,10 +82,8 @@ export const AddressEditor: React.VFC<{
     console.log(editingFeature.properties);
   }, [editingFeature]);
 
-  const onReverseGeocode = useCallback(async () => {
-    console.info("openReverseGeocoder", [center[0], center[1]]);
+  const onOpenReverseGeocode = useCallback(async () => {
     const result = await openReverseGeocoder([center[0], center[1]]);
-    console.info("openReverseGeocoder", result);
 
     setEditingFeature((prevFeature) => {
       const updateFields = {
@@ -93,6 +96,18 @@ export const AddressEditor: React.VFC<{
       return { ...prevFeature, ...updateFields };
     });
   }, []);
+
+  const onOverpassReverseGeocode = useCallback(async () => {
+    if (!editingFeature.properties) {
+      return;
+    }
+    editingFeature.properties.nodes;
+    const result = await fetchOverpassAdmin(
+      JSON.parse(editingFeature.properties.nodes)
+    );
+    console.log("onOverpassReverseGeocode", result);
+    setAddressInputSuggest(result);
+  }, [editingFeature]);
 
   const onPostAddress = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
@@ -177,9 +192,7 @@ export const AddressEditor: React.VFC<{
               <div className="flex flex-wrap">
                 <AddressInputField
                   feature={editingFeature}
-                  fieldName={addressStructure.postcodeField.key}
-                  label={addressStructure.postcodeField.displayName}
-                  placeholder={addressStructure.postcodeField.placeholder}
+                  fieldOption={addressStructure.postcodeField}
                   onChange={onChange}
                 />
               </div>
@@ -189,10 +202,9 @@ export const AddressEditor: React.VFC<{
                     <AddressInputField
                       key={field.key}
                       feature={editingFeature}
-                      fieldName={field.key}
-                      label={field.displayName}
-                      placeholder={field.placeholder}
+                      fieldOption={field}
                       onChange={onChange}
+                      suggestList={addressInputSuggest}
                     />
                   );
                 })}
@@ -203,9 +215,7 @@ export const AddressEditor: React.VFC<{
                     <AddressInputField
                       key={field.key}
                       feature={editingFeature}
-                      fieldName={field.key}
-                      label={field.displayName}
-                      placeholder={field.placeholder}
+                      fieldOption={field}
                       onChange={onChange}
                     />
                   );
@@ -226,12 +236,23 @@ export const AddressEditor: React.VFC<{
                   {countryFeature?.properties?.["ISO_A3"] === "JPN" && (
                     <button
                       type="button"
-                      onClick={onReverseGeocode}
+                      onClick={onOpenReverseGeocode}
                       className="button rounded mr-4 py-2 px-3 bg-green-300 text-gray-800 hover:text-white"
                     >
                       Load address from coordinates
                     </button>
                   )}
+                  <button
+                    type="button"
+                    disabled={loadingOverpassAdmin}
+                    onClick={onOverpassReverseGeocode}
+                    className="button rounded mr-4 py-2 px-3 bg-green-300 text-gray-800 hover:text-white"
+                  >
+                    Load suggestion from OSM
+                    {loadingOverpassAdmin && (
+                      <FontAwesomeIcon icon={faSpinner} spin={true} />
+                    )}
+                  </button>
                   <button
                     disabled={!loggedIn || submitting || !anyChange}
                     className="button rounded mr-2 py-2 px-3 bg-blue-300 text-gray-800 disabled:bg-blue-100 disabled:text-gray-400 hover:text-white"

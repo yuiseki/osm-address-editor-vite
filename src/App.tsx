@@ -68,7 +68,7 @@ function App() {
     MapboxGeoJSONFeature[]
   >([]);
 
-  const { fetchOverpass, loadingOverpass } = useOverpass();
+  const { fetchOverpassBuildings, loadingOverpass } = useOverpass();
 
   //
   // initial load
@@ -120,7 +120,7 @@ function App() {
         return;
       }
       const center = debouncedViewState;
-      const newGeojson = await fetchOverpass(
+      const newGeojson = await fetchOverpassBuildings(
         center.latitude,
         center.longitude,
         center.zoom

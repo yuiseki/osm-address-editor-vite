@@ -8,6 +8,7 @@ export type AddressFieldType = {
   displayName: string;
   placeholder: string;
   prefix?: string;
+  adminLevel?: number;
 };
 
 export type AddressStructureType = {
