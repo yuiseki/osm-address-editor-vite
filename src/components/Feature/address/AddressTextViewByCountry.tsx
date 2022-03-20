@@ -1,5 +1,5 @@
 import { MapboxGeoJSONFeature } from "react-map-gl";
-import { AddressStructureType } from "./";
+import { AddressStructureType } from ".";
 
 export const AddressTextViewByCountry: React.VFC<{
   feature: MapboxGeoJSONFeature;
