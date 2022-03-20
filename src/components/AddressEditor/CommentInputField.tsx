@@ -20,7 +20,7 @@ export const CommentInputField: React.VFC<{
         className="block tracking-wide text-gray-700 text-xs font-bold mb-2"
         htmlFor="comment"
       >
-        Comment for this changeset (required)
+        Comment for this changeset (* required)
       </label>
       <input
         className="appearance-none block w-full leading-tight rounded py-2 px-1 border border-gray-300 bg-gray-100 text-black placeholder-gray-500 placeholder-opacity-50 focus:outline-none focus:bg-white focus:border-gray-500"
