@@ -1,8 +1,7 @@
-
 export const OSM_RASTER_TILE_STYLE: mapboxgl.Style = {
   version: 8,
   sources: {
-    "raster-tiles": {
+    "osm-raster-tiles": {
       type: "raster",
       tiles: [
         "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -17,7 +16,7 @@ export const OSM_RASTER_TILE_STYLE: mapboxgl.Style = {
     {
       id: "osm-tiles",
       type: "raster",
-      source: "raster-tiles",
+      source: "osm-raster-tiles",
       minzoom: 0,
       maxzoom: 20,
     },

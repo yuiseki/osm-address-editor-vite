@@ -13,7 +13,7 @@ const emptyGeoJSON = {
 export const useOverpass = () => {
   const [loadingOverpass, setLoadingOverpass] = useState(false);
 
-  const fetchOverpass = useCallback(async (latitude, longitude, zoom) => {
+  const fetchOverpassBuildings = useCallback(async (latitude, longitude, zoom) => {
     console.log(zoom);
     if (zoom < 16) {
       return emptyGeoJSON;
@@ -123,7 +123,7 @@ export const useOverpass = () => {
     return geojson;
   }, []);
   return {
-    fetchOverpass,
+    fetchOverpass: fetchOverpassBuildings,
     loadingOverpass,
   };
 };
