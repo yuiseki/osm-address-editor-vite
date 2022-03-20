@@ -20,12 +20,14 @@ import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { AddressTextViewByCountry } from "../Feature/address/AddressTextViewByCountry";
 import { CommentInputField } from "./CommentInputField";
 import { useOverpass } from "../../lib/hooks/overpass";
+import { SourceInputField } from "./SourceInputField";
 
 const DEFAULT_TAGS = {
   host: "https://yuiseki.github.io/osm-address-editor-vite/",
   created_by: "osm-address-editor-vite",
   locale: navigator.language,
-  comment: "Update Address",
+  comment: "Update address",
+  source: "OpenStreetMap",
 };
 
 export const AddressEditor: React.VFC<{
@@ -119,7 +121,8 @@ export const AddressEditor: React.VFC<{
         if (
           typeof value === "string" &&
           value.length > 0 &&
-          key !== "comment"
+          key !== "comment" &&
+          key !== "source"
         ) {
           tags[key] = value;
         }
@@ -140,6 +143,10 @@ export const AddressEditor: React.VFC<{
       const comment = formData.get("comment");
       if (comment) {
         DEFAULT_TAGS["comment"] = comment.toString();
+      }
+      const source = formData.get("source");
+      if (source) {
+        DEFAULT_TAGS["source"] = source.toString();
       }
       await OSM.uploadChangeset(DEFAULT_TAGS, changes);
       setSubmitting(false);
@@ -222,6 +229,7 @@ export const AddressEditor: React.VFC<{
                 })}
               </div>
               <div className="flex flex-wrap">
+                <SourceInputField />
                 <CommentInputField defaultValue={changesetCommentSuggest} />
               </div>
               <div className="flex flex-wrap">
