@@ -1,4 +1,3 @@
-lines (33 sloc) 670 Bytes
 import { AddressStructureType } from "..";
 
 export const AddressFieldsESP: AddressStructureType = {
