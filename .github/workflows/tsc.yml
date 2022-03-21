@@ -1,0 +1,18 @@
+on: push
+
+name: tsc
+jobs:
+  tsc:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@master
+      - name: Extract node version
+        run: echo "NODE_VERSION=$(cat .node_version)" >> $GITHUB_ENV
+      - name: Set Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: TypeScript typing check
+        run: npm run test:tsc
