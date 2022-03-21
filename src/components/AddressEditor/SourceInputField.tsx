@@ -14,10 +14,18 @@ export const SourceInputField: React.VFC<{}> = () => {
         id="source"
         name="source"
         type="text"
+        autoComplete="on"
+        list="source-list"
         placeholder="OpenStreetMap"
         defaultValue=""
         required={true}
       />
+      <datalist id="source-list">
+        <option value="survey" />
+        <option value="local knowledge" />
+        <option value="extrapolation" />
+        <option value="estimation from existing data" />
+      </datalist>
     </div>
   );
 };
