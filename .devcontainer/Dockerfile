@@ -1,19 +1,12 @@
 FROM ubuntu:22.04
 
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt install -y --no-install-recommends \
-    git \
-    curl \
-    vim \
-    htop \
-    make \
-    jq
-
-ENV DEBIAN_FRONTEND=dialog
+RUN apt update
+RUN apt install -y git curl
+RUN apt install -y vim htop make jq
 
 RUN curl -Ls https://deb.nodesource.com/setup_18.x | bash
-RUN apt update && apt install -y nodejs npm
-RUN npm install npm@latest -g
+RUN apt update && apt install -y nodejs
+RUN npm i -g npm
 
 RUN useradd -m user
 USER user
