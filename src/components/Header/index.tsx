@@ -50,7 +50,7 @@ export const Header: React.VFC = () => {
           </span>
         ) : (
           <span style={{ marginLeft: "10px" }}>
-            Please logged in as OSM user.
+            Please log in with your OSM account.
           </span>
         )}
       </div>
