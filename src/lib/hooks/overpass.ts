@@ -14,7 +14,7 @@ export const useOverpass = () => {
   const [loadingOverpass, setLoadingOverpass] = useState(false);
 
   const fetchOverpassBuildings = useCallback(
-    async (latitude, longitude, zoom) => {
+    async (latitude: number, longitude: number, zoom: number) => {
       if (loadingOverpass) {
         return emptyGeoJSON;
       }

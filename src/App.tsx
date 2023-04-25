@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 // map
 import maplibregl from "maplibre-gl";
@@ -161,7 +167,7 @@ function App() {
     setHoverInfo(undefined);
   }, []);
 
-  const onClick = useCallback((event) => {
+  const onClickMap = useCallback((event: MapLayerMouseEvent) => {
     onReset();
     const clickedFeature = event.features && event.features[0];
     if (!clickedFeature) {
@@ -271,7 +277,7 @@ function App() {
           onMoveEnd={onMapMoveEnd}
           onLoad={onMapLoad}
           interactiveLayerIds={["buildings-layer-fill"]}
-          onClick={onClick}
+          onClick={onClickMap}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
           //onMouseDown={onMouseDown}
