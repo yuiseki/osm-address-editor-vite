@@ -11,10 +11,8 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import Map, {
   GeolocateControl,
-  GeolocateControlRef,
   Layer,
-  MapboxEvent,
-  MapboxGeoJSONFeature,
+  MapEvent,
   MapLayerMouseEvent,
   MapRef,
   Marker,
@@ -22,7 +20,8 @@ import Map, {
   Source,
   ViewState,
   ViewStateChangeEvent,
-} from "react-map-gl";
+  MapGeoJSONFeature
+} from "react-map-gl/maplibre";
 
 import type { FeatureCollection, GeometryObject } from "geojson";
 
@@ -57,7 +56,7 @@ function App() {
   const [viewState, setViewState] = useState<ViewState>();
   const debouncedViewState = useDebounce<ViewState>(viewState, 2500);
 
-  const geolocateControlRef = useRef<GeolocateControlRef>(null);
+  const geolocateControlRef = useRef<maplibregl.GeolocateControl>(null);
 
   const [geojson, setGeojson] = useState<FeatureCollection<GeometryObject>>({
     type: "FeatureCollection",
@@ -67,11 +66,11 @@ function App() {
   const [cursor, setCursor] = useState<string>("auto");
 
   const [hoverInfo, setHoverInfo] = useState<
-    { x: number; y: number; feature: MapboxGeoJSONFeature } | undefined
+    { x: number; y: number; feature: MapGeoJSONFeature } | undefined
   >();
 
   const [selectedFeatures, setSelectedFeatures] = useState<
-    MapboxGeoJSONFeature[]
+    MapGeoJSONFeature[]
   >([]);
 
   const { fetchOverpassBuildings, loadingOverpass } = useOverpass();
@@ -94,7 +93,7 @@ function App() {
   //
   // map events
   //
-  const onMapLoad = useCallback((e: MapboxEvent) => {
+  const onMapLoad = useCallback((e: MapEvent) => {
     const center = e.target.getCenter();
     const zoom = e.target.getZoom();
     setViewState({

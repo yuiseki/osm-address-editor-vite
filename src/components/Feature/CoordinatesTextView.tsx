@@ -1,7 +1,7 @@
-import { MapboxGeoJSONFeature } from "react-map-gl";
+import { MapGeoJSONFeature } from "react-map-gl/maplibre";
 
 export const CoordinatesTextView: React.VFC<{
-  feature: MapboxGeoJSONFeature;
+  feature: MapGeoJSONFeature;
 }> = ({ feature }) => {
   const center = JSON.parse(feature.properties?.center);
   return (

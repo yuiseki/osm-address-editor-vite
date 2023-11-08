@@ -1,4 +1,4 @@
-import { LayerProps } from "react-map-gl";
+import { LayerProps } from "react-map-gl/maplibre";
 
 export const BUILDINGS_FILL_STYLE: LayerProps = {
   id: "buildings-layer-fill",

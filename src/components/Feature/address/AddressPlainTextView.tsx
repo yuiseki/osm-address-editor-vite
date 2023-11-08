@@ -1,7 +1,7 @@
-import { MapboxGeoJSONFeature } from "react-map-gl";
+import { MapGeoJSONFeature } from "react-map-gl/maplibre";
 
 export const AddressPlainTextView: React.VFC<{
-  feature: MapboxGeoJSONFeature;
+  feature: MapGeoJSONFeature;
 }> = ({ feature }) => {
   return (
     <>

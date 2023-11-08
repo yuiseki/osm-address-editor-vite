@@ -1,9 +1,9 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import { MapboxGeoJSONFeature } from "react-map-gl";
+import { MapGeoJSONFeature } from "react-map-gl/maplibre";
 import { AddressFieldType } from "../Feature/address";
 
 export const AddressInputField: React.VFC<{
-  feature: MapboxGeoJSONFeature;
+  feature: MapGeoJSONFeature;
   fieldOption: AddressFieldType;
   suggestList?: any[];
   onChange?: (e: FormEvent<HTMLInputElement>) => void;

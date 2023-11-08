@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { MapboxGeoJSONFeature } from "react-map-gl";
+import { MapGeoJSONFeature } from "react-map-gl/maplibre";
 import * as OSM from "osm-api";
 import { OsmChange, OsmWay } from "osm-api";
 import type { Feature } from "geojson";
@@ -31,7 +31,7 @@ const DEFAULT_TAGS = {
 };
 
 export const AddressEditor: React.VFC<{
-  feature: MapboxGeoJSONFeature;
+  feature: MapGeoJSONFeature;
   onCancel: () => void;
   onSubmit: () => void;
 }> = ({ feature, onCancel, onSubmit }) => {
@@ -46,7 +46,7 @@ export const AddressEditor: React.VFC<{
   const [addressStructure, setAddressStructure] =
     useState<AddressStructureType>();
 
-  const [editingFeature, setEditingFeature] = useState(feature);
+  const [editingFeature, setEditingFeature] = useState<MapGeoJSONFeature>(feature);
 
   const [loggedIn, setLoggedIn] = useState(false);
   const [anyChange, setAnyChange] = useState(false);
@@ -87,7 +87,7 @@ export const AddressEditor: React.VFC<{
   const onOpenReverseGeocode = useCallback(async () => {
     const result = await openReverseGeocoder([center[0], center[1]]);
 
-    setEditingFeature((prevFeature) => {
+    setEditingFeature((prevFeature: MapGeoJSONFeature) => {
       const updateFields = {
         properties: {
           "addr:province": result.prefecture,
@@ -95,7 +95,8 @@ export const AddressEditor: React.VFC<{
           ...prevFeature.properties,
         },
       };
-      return { ...prevFeature, ...updateFields };
+      prevFeature.properties = updateFields.properties;
+      return prevFeature;
     });
   }, []);
 
