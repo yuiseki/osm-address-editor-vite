@@ -1,6 +1,6 @@
 import { MapGeoJSONFeature } from "react-map-gl/maplibre";
 
-export const AddressPlainTextView: React.VFC<{
+export const AddressPlainTextView: React.FC<{
   feature: MapGeoJSONFeature;
 }> = ({ feature }) => {
   return (

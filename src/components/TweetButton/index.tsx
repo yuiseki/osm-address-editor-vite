@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
 import { ViewState } from "react-map-gl/maplibre";
 
-export const TweetButton: React.VFC<{ viewState?: ViewState }> = ({
+export const TweetButton: React.FC<{ viewState?: ViewState }> = ({
   viewState,
 }) => {
   const [url, setUrl] = useState(

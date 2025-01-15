@@ -30,7 +30,7 @@ const DEFAULT_TAGS = {
   source: "OpenStreetMap",
 };
 
-export const AddressEditor: React.VFC<{
+export const AddressEditor: React.FC<{
   feature: MapGeoJSONFeature;
   onCancel: () => void;
   onSubmit: () => void;

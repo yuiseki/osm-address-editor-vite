@@ -1,7 +1,7 @@
 import { MapGeoJSONFeature } from "react-map-gl/maplibre";
 import { AddressStructureType } from ".";
 
-export const AddressTextViewByCountry: React.VFC<{
+export const AddressTextViewByCountry: React.FC<{
   feature: MapGeoJSONFeature;
   fields: AddressStructureType;
 }> = ({ feature, fields }) => {
