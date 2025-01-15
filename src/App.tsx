@@ -7,21 +7,9 @@ import React, {
 } from "react";
 
 // map
+import { Map, GeolocateControl, Layer, MapEvent, MapLayerMouseEvent, MapRef, Marker, NavigationControl, Source, ViewState, ViewStateChangeEvent, MapGeoJSONFeature } from "react-map-gl/maplibre";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import Map, {
-  GeolocateControl,
-  Layer,
-  MapEvent,
-  MapLayerMouseEvent,
-  MapRef,
-  Marker,
-  NavigationControl,
-  Source,
-  ViewState,
-  ViewStateChangeEvent,
-  MapGeoJSONFeature
-} from "react-map-gl/maplibre";
 
 import type { FeatureCollection, GeometryObject } from "geojson";
 

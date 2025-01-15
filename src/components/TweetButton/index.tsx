@@ -2,7 +2,7 @@ import { faTwitter } from "@fortawesome/free-brands-svg-icons";
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
-import { ViewState } from "react-map-gl";
+import { ViewState } from "react-map-gl/maplibre";
 
 export const TweetButton: React.VFC<{ viewState?: ViewState }> = ({
   viewState,
