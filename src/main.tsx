@@ -1,14 +1,16 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import "tailwindcss/tailwind.css";
 import App from "./App";
 
 import * as buffer from "buffer";
 (window as any).Buffer = buffer.Buffer;
 
-ReactDOM.render(
+const container = document.getElementById("root");
+if (!container) throw new Error('Failed to find the root element');
+const root = createRoot(container);
+root.render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>,
-  document.getElementById("root")
+  </React.StrictMode>
 );
