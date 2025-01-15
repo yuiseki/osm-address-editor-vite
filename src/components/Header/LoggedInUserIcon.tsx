@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import * as OSM from "osm-api";
 import { OsmUser } from "osm-api";
 
-export const UserIcon: React.VFC = () => {
+export const UserIcon: React.FC = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState<OsmUser | undefined>(
     undefined

@@ -2,7 +2,7 @@ import { FormEvent, useCallback, useEffect, useState } from "react";
 import { MapGeoJSONFeature } from "react-map-gl/maplibre";
 import { AddressFieldType } from "../Feature/address";
 
-export const AddressInputField: React.VFC<{
+export const AddressInputField: React.FC<{
   feature: MapGeoJSONFeature;
   fieldOption: AddressFieldType;
   suggestList?: any[];

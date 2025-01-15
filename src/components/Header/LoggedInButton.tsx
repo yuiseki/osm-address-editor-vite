@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import * as OSM from "osm-api";
 
-export const LoginButton: React.VFC = () => {
+export const LoginButton: React.FC = () => {
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {

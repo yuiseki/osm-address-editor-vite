@@ -1,6 +1,6 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 
-export const SourceInputField: React.VFC<{}> = () => {
+export const SourceInputField: React.FC<{}> = () => {
   return (
     <div className="w-full md:w-1/6 py-1 px-2 mb-6 md:mb-0">
       <label

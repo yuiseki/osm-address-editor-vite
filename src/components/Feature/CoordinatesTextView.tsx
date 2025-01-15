@@ -1,6 +1,6 @@
 import { MapGeoJSONFeature } from "react-map-gl/maplibre";
 
-export const CoordinatesTextView: React.VFC<{
+export const CoordinatesTextView: React.FC<{
   feature: MapGeoJSONFeature;
 }> = ({ feature }) => {
   const center = JSON.parse(feature.properties?.center);

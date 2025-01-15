@@ -1,7 +1,7 @@
 import { Feature } from "geojson";
 import { toSvg } from "jdenticon";
 
-export const LastEditUserIconView: React.VFC<{
+export const LastEditUserIconView: React.FC<{
   feature: Feature;
   size: number;
 }> = ({ feature, size }) => {

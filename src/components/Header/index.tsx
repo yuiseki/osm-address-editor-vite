@@ -4,7 +4,7 @@ import { OsmUser } from "osm-api";
 import { LoginButton } from "./LoggedInButton";
 import { UserIcon } from "./LoggedInUserIcon";
 
-export const Header: React.VFC = () => {
+export const Header: React.FC = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState<OsmUser | undefined>(
     undefined

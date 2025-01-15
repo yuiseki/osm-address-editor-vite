@@ -1,6 +1,6 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 
-export const CommentInputField: React.VFC<{
+export const CommentInputField: React.FC<{
   placeholder?: string;
   defaultValue?: string;
 }> = ({ placeholder, defaultValue }) => {
