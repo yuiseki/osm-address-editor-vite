@@ -275,7 +275,6 @@ function App() {
           boxZoom={false}
           hash={true}
           cursor={cursor}
-          mapLib={maplibregl}
           style={{ width: "100%", height: "100%" }}
           mapStyle={OSM_RASTER_TILE_STYLE}
         >
