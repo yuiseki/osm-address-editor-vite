@@ -7,21 +7,8 @@ import React, {
 } from "react";
 
 // map
-import maplibregl from "maplibre-gl";
+import { Map, GeolocateControl, Layer, MapEvent, MapLayerMouseEvent, MapRef, Marker, NavigationControl, Source, ViewState, ViewStateChangeEvent, MapGeoJSONFeature } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
-import Map, {
-  GeolocateControl,
-  Layer,
-  MapEvent,
-  MapLayerMouseEvent,
-  MapRef,
-  Marker,
-  NavigationControl,
-  Source,
-  ViewState,
-  ViewStateChangeEvent,
-  MapGeoJSONFeature
-} from "react-map-gl/maplibre";
 
 import type { FeatureCollection, GeometryObject } from "geojson";
 
@@ -56,7 +43,7 @@ function App() {
   const [viewState, setViewState] = useState<ViewState>();
   const debouncedViewState = useDebounce<ViewState>(viewState, 2500);
 
-  const geolocateControlRef = useRef<maplibregl.GeolocateControl>(null);
+  const [shouldGeolocate, setShouldGeolocate] = useState(false);
 
   const [geojson, setGeojson] = useState<FeatureCollection<GeometryObject>>({
     type: "FeatureCollection",
@@ -79,15 +66,10 @@ function App() {
   // initial load
   //
   useEffect(() => {
-    setTimeout(() => {
-      // trigger geolocate if map hash is /0/0
-      console.log(window.location.hash);
-      if (!window.location.hash.endsWith("/0/0")) {
-        return;
-      }
-      console.log("geolocateControlRef trigger");
-      geolocateControlRef.current?.trigger();
-    }, 500);
+    // Set geolocate flag if map hash is /0/0
+    if (window.location.hash.endsWith("/0/0")) {
+      setShouldGeolocate(true);
+    }
   }, []);
 
   //
@@ -287,7 +269,6 @@ function App() {
           boxZoom={false}
           hash={true}
           cursor={cursor}
-          mapLib={maplibregl}
           style={{ width: "100%", height: "100%" }}
           mapStyle={OSM_RASTER_TILE_STYLE}
         >
@@ -300,8 +281,16 @@ function App() {
             showCompass={false}
           />
           <GeolocateControl
-            ref={geolocateControlRef}
             position="top-left"
+            ref={(ref) => {
+              if (ref && shouldGeolocate) {
+                setShouldGeolocate(false);
+                setTimeout(() => {
+                  // @ts-ignore - trigger exists on the internal control
+                  ref.trigger();
+                }, 500);
+              }
+            }}
             showUserLocation={true}
             showAccuracyCircle={false}
             trackUserLocation={false}
