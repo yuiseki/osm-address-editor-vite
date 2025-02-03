@@ -25,7 +25,7 @@
     "postcss": "^8.4.31",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-map-gl": "^7.1.6",
+    "react-map-gl": "^8.0.0",
     "tailwindcss": "^3.0.23"
   },
   "devDependencies": {
