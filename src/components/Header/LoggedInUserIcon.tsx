@@ -22,12 +22,14 @@ export const UserIcon: React.FC = () => {
     })();
   }, [loggedIn]);
 
+  const avatarSrc = currentUser?.img?.href;
+
   return (
     <>
       {currentUser ? (
         <img
           style={{ width: "44px", height: "44px" }}
-          src={currentUser.img.href}
+          src={avatarSrc ?? undefined}
           alt={currentUser.display_name}
           title={currentUser.display_name}
         />
