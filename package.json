@@ -33,7 +33,7 @@
     "@types/mapbox__point-geometry": "^0.1.2",
     "@types/mapbox__vector-tile": "^2.0.0",
     "@types/maplibre-gl": "^1.14.0",
-    "@types/node": "^22.0.0",
+    "@types/node": "^24.0.0",
     "@types/osmtogeojson": "^2.2.30",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
