@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@types/geojson": "^7946.0.8",
-    "@types/mapbox__point-geometry": "^0.1.2",
+    "@types/mapbox__point-geometry": "^1.0.0",
     "@types/mapbox__vector-tile": "^2.0.0",
     "@types/maplibre-gl": "^1.14.0",
     "@types/node": "^24.0.0",
