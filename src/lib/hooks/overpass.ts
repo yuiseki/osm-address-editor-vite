@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import osmtogeojson from "osmtogeojson";
+import osm2geojson from "osm2geojson-lite";
 import * as OSM from "osm-api";
 import * as turf from "@turf/turf";
 
@@ -62,8 +62,10 @@ export const useOverpass = () => {
       console.log("overpass json elements: ", json.elements);
 
       // convert raw json to geojson
-      const geojson = osmtogeojson(json) as FeatureCollection<Polygon | Point>;
-      console.log("overpass osmtogeojson raw: ", geojson);
+      const geojson = osm2geojson(json, {
+        completeFeature: true,
+      }) as FeatureCollection<Polygon | Point>;
+      console.log("overpass osm2geojson raw: ", geojson);
 
       // convert for display and editing
       for await (const feature of geojson.features) {
@@ -118,7 +120,7 @@ export const useOverpass = () => {
         }
       }
 
-      console.log("overpass osmtogeojson converted: ", geojson);
+      console.log("overpass osm2geojson converted: ", geojson);
       console.log("overpass: loaded.");
       setLoadingOverpass(false);
       return geojson;

@@ -27,8 +27,8 @@ This project uses following apis and npm packages:
 - `osm-api-js`
   - https://github.com/k-yle/osm-api-js
   - A complete package for interacting with the OpenStreetMap API
-- `osmtogeojson`
-  - https://github.com/tyrasd/osmtogeojson
+- `osm2geojson-lite`
+  - https://github.com/tibetty/osm2geojson-lite
   - This package can convert responses from the Overpass API to GeoJson
 - `turf`
   - https://github.com/Turfjs/turf
