@@ -29,6 +29,7 @@
     "tailwindcss": "^4.0.0"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.0",
     "@types/geojson": "^7946.0.8",
     "@types/mapbox__point-geometry": "^0.1.2",
     "@types/mapbox__vector-tile": "^2.0.0",
@@ -37,9 +38,8 @@
     "@types/osmtogeojson": "^2.2.30",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "@tailwindcss/postcss": "^4.0.0",
-    "@vitejs/plugin-react": "^5.0.0",
+    "@vitejs/plugin-react": "^6.1.1",
     "typescript": "^5.0.0",
-    "vite": "^7.1.11"
+    "vite": "^8.3.0"
   }
 }
