@@ -20,6 +20,7 @@ import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { AddressTextViewByCountry } from "../Feature/address/AddressTextViewByCountry";
 import { CommentInputField } from "./CommentInputField";
 import { useOverpass } from "../../lib/hooks/overpass";
+import { parseFeatureProperty } from "../../lib/feature/properties";
 import { SourceInputField } from "./SourceInputField";
 
 const DEFAULT_TAGS = {
@@ -38,7 +39,7 @@ export const AddressEditor: React.FC<{
   const { detectCountry, loadingCountry } = useCountry();
   const { fetchOverpassAdmin, loadingOverpassAdmin } = useOverpass();
 
-  const center = JSON.parse(feature.properties?.center);
+  const center = parseFeatureProperty<number[]>(feature.properties?.center);
   const [countryFeature, setCountryFeature] = useState<Feature | undefined>(
     undefined
   );
@@ -106,7 +107,7 @@ export const AddressEditor: React.FC<{
     }
     editingFeature.properties.nodes;
     const result = await fetchOverpassAdmin(
-      JSON.parse(editingFeature.properties.nodes)
+      parseFeatureProperty<number[]>(editingFeature.properties.nodes)
     );
     console.log("onOverpassReverseGeocode", result);
     setAddressInputSuggest(result);
@@ -117,7 +118,9 @@ export const AddressEditor: React.FC<{
       setSubmitting(true);
       e.preventDefault();
       const formData = new FormData(e.currentTarget);
-      const tags = JSON.parse(feature.properties?.tags);
+      const tags = parseFeatureProperty<Record<string, string>>(
+        feature.properties?.tags
+      );
       formData.forEach((value, key) => {
         if (
           typeof value === "string" &&
@@ -133,7 +136,7 @@ export const AddressEditor: React.FC<{
         id: feature.id,
         version: feature.properties?.version,
         tags: tags,
-        nodes: JSON.parse(feature.properties?.nodes),
+        nodes: parseFeatureProperty<number[]>(feature.properties?.nodes),
       };
       console.info(JSON.stringify(changeSet, null, 2));
       const changes: OsmChange = {

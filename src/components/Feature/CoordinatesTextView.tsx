@@ -1,9 +1,11 @@
 import { MapGeoJSONFeature } from "react-map-gl/maplibre";
 
+import { parseFeatureProperty } from "../../lib/feature/properties";
+
 export const CoordinatesTextView: React.FC<{
   feature: MapGeoJSONFeature;
 }> = ({ feature }) => {
-  const center = JSON.parse(feature.properties?.center);
+  const center = parseFeatureProperty<number[]>(feature.properties?.center);
   return (
     <>
       <span className="longitude">
