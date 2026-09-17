@@ -54,7 +54,7 @@ This project uses following apis and npm packages:
 
 ### Requirements
 
-- Node.js v16
+- Node.js v22.12 or later
 
 ### Launch dev server
 
