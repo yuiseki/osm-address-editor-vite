@@ -34,7 +34,7 @@ import { useOverpass } from "./lib/hooks/overpass";
 import { useDebounce } from "./lib/hooks/debounce";
 
 // map style
-import { OSM_RASTER_TILE_STYLE } from "./maps/OsmRasterTileStyle";
+import { OSM_BRIGHT_STYLE_URL } from "./maps/OsmBrightStyle";
 import { BUILDINGS_FILL_STYLE } from "./maps/BuildingsFillStyle";
 
 function App() {
@@ -270,7 +270,7 @@ function App() {
           hash={true}
           cursor={cursor}
           style={{ width: "100%", height: "100%" }}
-          mapStyle={OSM_RASTER_TILE_STYLE}
+          mapStyle={OSM_BRIGHT_STYLE_URL}
         >
           <Source id="buildings-source" type="geojson" data={geojson}>
             <Layer {...BUILDINGS_FILL_STYLE} />
