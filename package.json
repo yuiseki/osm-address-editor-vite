@@ -22,7 +22,7 @@
     "jdenticon": "^3.1.1",
     "maplibre-gl": "^6.10.0",
     "osm-api": "^4.0.0",
-    "osm2geojson-lite": "^2.0.1",
+    "osm2geojson-lite": "^3.0.0",
     "postcss": "^8.4.31",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
